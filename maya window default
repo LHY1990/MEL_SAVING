@@ -1,6 +1,6 @@
 global proc workSpace(){
     
-
+    //이름은 매번 바꿔서 사용할것
     
     if (`window -ex tempWindow`){
         deleteUI -window tempWindow;
