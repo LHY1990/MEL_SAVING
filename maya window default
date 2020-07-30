@@ -1,0 +1,26 @@
+global proc workSpace(){
+    
+
+    
+    if (`window -ex tempWindow`){
+        deleteUI -window tempWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "임시 라이팅 윈도우" tempWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+    //버튼 시작
+
+    intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
+    button -label "임시버튼" -bgc .5 .5 .5 ;
+   
+    
+    
+    //버튼완료    
+    showWindow tempWindow;
+    
+}
+
+workSpace();
