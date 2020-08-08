@@ -1,0 +1,152 @@
+global proc ABCcount(){
+    
+
+    
+    if (`window -ex ABCcount`){
+        deleteUI -window ABCcount;
+    }
+    
+    window -title "ABC 컨트롤" ABCcount;
+    
+    columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
+    
+    
+    text -label "\n사용전 반드시 파일저장\n";
+    button -label "선택한 오브젝트만 한 파일로 ABC exporting"      -command _abcOut;
+    button -label "선택한 오브젝트만 각 파일로 ABC exporting"      -command _abcOutSel;
+    button -label "뷰포트 표시"      -command _view;
+    
+    
+    showWindow ABCcount;
+    
+}
+
+proc _abcOut(){
+    
+    string $tempSelcount[]=`ls -sl`;
+//선택된 오브젝트가 있을때만 작동
+    if((size($tempSelcount))>0){
+        modelEditor -e -allObjects 0 modelPanel4;updateShowMenu MainPane|viewPanes|modelPanel4|modelPanel4|menu31 modelPanel4 "modelPanel4" "Playblast Display";
+    
+        //시작프레임 끝나는 프레임 가져오기
+        int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+        
+        
+        //파일루트 가져와서 이름 바꾸기
+        string $filePath=`file -q -sceneName`;
+        //$filePath=`substitute ".ma" $filePath ".abc";`
+        $filePath=`substitute ".mb" $filePath ".abc"`;
+        int $iter=0;
+        for($iter=0;$iter<12;$iter++){
+            $filePath=`substitute "/" $filePath "\\"`;
+        }
+    
+        //////////////////////////
+        //명령어 조립
+        string $countS="";
+        string $selectionToExporting[]=`ls -sl`;
+        string $selectedList=" ";
+        int $i=0;
+        for($countS in $selectionToExporting){
+            $selectedList=$selectedList+"-root "+""+$selectionToExporting[$i]+" ";
+            $i++;
+        }
+        
+        //print $selectedList;
+        
+        //string $outputPath=("-frameRange"+ $startFrame+" " +$endFrame +"-root"+ 선택그룹+ "-file"+$filePath );
+        AbcExport -j ("-frameRange "+$startFrame+" "+$endFrame
+        
+        +" -uvWrite -writeColorSets -writeFaceSets -wholeFrameGeo -worldSpace -writeVisibility -eulerFilter -autoSubd -writeUVSets -dataFormat ogawa "
+        +$selectedList
+        + " -file "+$filePath 
+        );
+        clear $selectionToExporting;
+
+    }
+    else{
+        print "오브젝트를 선택해 주세요";
+    }
+}
+
+proc _abcOutSel(){
+    string $tempSelcount[]=`ls -sl`;
+    int $numberOfCh=size($tempSelcount);//반복문위한것
+    //선택된 오브젝트가 있을때만 작동
+    int $countCh=0;//반복문위한것
+    for($countCh=0;$countCh<$numberOfCh;$countCh++){
+        
+        if((size($tempSelcount))>0){
+            modelEditor -e -allObjects 0 modelPanel4;updateShowMenu MainPane|viewPanes|modelPanel4|modelPanel4|menu31 modelPanel4 "modelPanel4" "Playblast Display";
+    
+            //시작프레임 끝나는 프레임 가져오기
+            int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+            int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+            
+            
+            //파일루트 가져와서 이름 바꾸기
+            string $filePath=`file -q -sceneName`;
+            
+            //캐릭터이름 임시로 받아서 넘김
+            //string $tempChName=$tempSelcount[$countCh];
+            
+            //캐릭터 문자열 변경
+            string $outChName="";
+            
+            for($iter=0;$iter<2;$iter++){
+                $outChName=`substitute ":" $tempSelcount[$countCh] ""`;
+            }
+            
+            
+           // print $tempSelcount;
+            //print ($tempSelcount[$countCh]+".abc"+"\n");
+            
+            
+            $filePath=`substitute ".mb" $filePath ("_"+$outChName+".abc")`;
+            
+            print $filePath;
+            int $iter=0;
+            
+
+            //문자열변경
+            for($iter=0;$iter<12;$iter++){
+                $filePath=`substitute "/" $filePath "\\"`;
+                
+            }
+            print $filePath;
+            //////////////////////////
+            //명령어 조립
+            string $countS="";
+            string $selectionToExporting[]=`ls -sl`;
+            string $selectedList=" ";
+            int $i=0;
+            for($countS in $selectionToExporting){
+                $selectedList=$selectedList+"-root "+"|"+$selectionToExporting[$i]+" ";
+                $i++;
+            }
+        
+            AbcExport -j ("-frameRange "+$startFrame+" "+$endFrame
+            
+            +" -uvWrite -writeColorSets -writeFaceSets -wholeFrameGeo -worldSpace -writeVisibility -eulerFilter -autoSubd -writeUVSets -dataFormat ogawa "
+            +" -root "+$tempSelcount[$countCh]
+            + " -file "+$filePath 
+            );
+        
+        }
+        
+        else{
+            print "오브젝트를 선택해 주세요";
+        }
+        
+        
+    }
+
+    
+
+}
+proc _view(){
+    modelEditor -e -polymeshes true modelPanel4;modelEditor -e -hos true modelPanel4;
+}
+
+ABCcount();
