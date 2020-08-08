@@ -14,7 +14,11 @@ global proc ABCcount(){
     text -label "\n사용전 반드시 파일저장\n";
     button -label "선택한 오브젝트만 한 파일로 ABC exporting"      -command _abcOut;
     button -label "선택한 오브젝트만 각 파일로 ABC exporting"      -command _abcOutSel;
-    button -label "뷰포트 표시"      -command _view;
+    text -label "이름 지정 ABC exporting";
+    $custumedNameABC=`textFieldGrp tempIDABC`; //`textFieldGrp -q -tx tempID`;
+    button -label "이름 지정 ABC exporting"  -command _abcOutCustumed;
+    button -label "모델링만 뷰포트 표시"      -command _viewMod;
+    button -label "전체 뷰포트 표시"          -command _view;
     
     
     showWindow ABCcount;
@@ -145,8 +149,67 @@ proc _abcOutSel(){
     
 
 }
-proc _view(){
+proc _abcOutCustumed(){
+    string $custumedName=`textFieldGrp -q -tx tempIDABC`;
+    //설정된 이름 가져오기
+    string $tempSelcount[]=`ls -sl`;
+//선택된 오브젝트가 있을때만 작동
+    if((size($tempSelcount))>0){
+        modelEditor -e -allObjects 0 modelPanel4;updateShowMenu MainPane|viewPanes|modelPanel4|modelPanel4|menu31 modelPanel4 "modelPanel4" "Playblast Display";
+    
+        //시작프레임 끝나는 프레임 가져오기
+        int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+        
+        
+        //파일루트 가져와서 이름 바꾸기
+        string $filePath=`file -q -sceneName`;
+        //$filePath=`substitute ".ma" $filePath ".abc";`
+        $filePath=`substitute ".mb" $filePath ("_"+$custumedName+".abc")`;
+        int $iter=0;
+        for($iter=0;$iter<12;$iter++){
+            $filePath=`substitute "/" $filePath "\\"`;
+        }
+    
+        //////////////////////////
+        //명령어 조립
+        string $countS="";
+        string $selectionToExporting[]=`ls -sl`;
+        string $selectedList=" ";
+        int $i=0;
+        for($countS in $selectionToExporting){
+            $selectedList=$selectedList+"-root "+""+$selectionToExporting[$i]+" ";
+            $i++;
+        }
+        
+        //print $selectedList;
+        
+        //string $outputPath=("-frameRange"+ $startFrame+" " +$endFrame +"-root"+ 선택그룹+ "-file"+$filePath );
+        AbcExport -j ("-frameRange "+$startFrame+" "+$endFrame
+        
+        +" -uvWrite -writeColorSets -writeFaceSets -wholeFrameGeo -worldSpace -writeVisibility -eulerFilter -autoSubd -writeUVSets -dataFormat ogawa "
+        +$selectedList
+        + " -file "+$filePath 
+        );
+        clear $selectionToExporting;
+
+    }
+    else{
+        print "오브젝트를 선택해 주세요";
+    }
+    
+    
+    
+    
+    
+    
+    
+}
+proc _viewMod(){
     modelEditor -e -polymeshes true modelPanel4;modelEditor -e -hos true modelPanel4;
+}
+proc _view(){
+    modelEditor -e -allObjects 1 modelPanel4;updateShowMenu MainPane|viewPanes|modelPanel4|modelPanel4|menu31 modelPanel4 "modelPanel4" "Playblast Display";
 }
 
 ABCcount();
