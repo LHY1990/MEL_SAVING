@@ -12,13 +12,18 @@ global proc ABCcount(){
     
     
     text -label "\n사용전 반드시 파일저장\n";
-    button -label "선택한 오브젝트만 한 파일로 ABC exporting"      -command _abcOut;
-    button -label "선택한 오브젝트만 각 파일로 ABC exporting"      -command _abcOutSel;
+    button -label "선택한 오브젝트만 각 파일로 ABC exporting"   -bgc .85 .5 .5   -command _abcOutSel;
+    separator -h 2 -style "none";
+    button -label "선택한 오브젝트만 한 파일로 ABC exporting"   -bgc .8 .55 .5   -command _abcOut;
+    separator -h 2 -style "none";
     text -label "이름 지정 ABC exporting";
     $custumedNameABC=`textFieldGrp tempIDABC`; //`textFieldGrp -q -tx tempID`;
-    button -label "이름 지정 ABC exporting"  -command _abcOutCustumed;
-    button -label "모델링만 뷰포트 표시"      -command _viewMod;
-    button -label "전체 뷰포트 표시"          -command _view;
+    button -label "이름 지정 ABC exporting"                   -bgc .8 .7 .5   -command _abcOutCustumed;
+    text -label "\nwindow" -font "fixedWidthFont";
+    button -label "ABC import window"                   -bgc .5 .6 .5        -command _windowABC;
+    text -label "\nviewport" -font "fixedWidthFont";
+    button -label "모델링만 뷰포트 표시"                          -command _viewMod;
+    button -label "전체 뷰포트 표시"                              -command _view;
     
     
     showWindow ABCcount;
@@ -197,14 +202,14 @@ proc _abcOutCustumed(){
     else{
         print "오브젝트를 선택해 주세요";
     }
-    
-    
-    
-    
-    
-    
-    
+  
 }
+
+proc _windowABC(){
+    doAlembicImportArgList 3 {"2","0","0","0","0","1","0","0","1","1"};
+}
+
+
 proc _viewMod(){
     modelEditor -e -polymeshes true modelPanel4;modelEditor -e -hos true modelPanel4;
 }
