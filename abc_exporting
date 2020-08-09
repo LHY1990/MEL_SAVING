@@ -39,8 +39,9 @@ proc _abcOut(){
     
         //시작프레임 끝나는 프레임 가져오기
         int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        $startFrame=$startFrame-1;
         int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
-        
+        $endFrame=$endFrame+1;
         
         //파일루트 가져와서 이름 바꾸기
         string $filePath=`file -q -sceneName`;
@@ -91,7 +92,9 @@ proc _abcOutSel(){
     
             //시작프레임 끝나는 프레임 가져오기
             int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+            $startFrame=$startFrame-1;
             int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+            $endFrame=$endFrame+1;
             
             
             //파일루트 가져와서 이름 바꾸기
@@ -164,7 +167,9 @@ proc _abcOutCustumed(){
     
         //시작프레임 끝나는 프레임 가져오기
         int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        $startFrame=$startFrame-1;
         int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+        $endFrame=$endFrame+1;
         
         
         //파일루트 가져와서 이름 바꾸기
