@@ -1,0 +1,211 @@
+global proc subCount(){
+    
+
+    
+    if (`window -ex subCount`){
+        deleteUI -window subCount;
+    }
+    
+    window -title "subdiv 컨트롤" subCount;
+    
+    columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
+    
+    
+    button -label "선택된 오브젝트\nvisibility ON"  -bgc .8 .5 .5 -command _visOn;
+    button -label "선택된 오브젝트\nvisibility OFF" -bgc .8 .5 .5 -command _visOff;
+    button -label "선택된 오브젝트\nvis Enable Remove"  -bgc .8 .5 .8 -command _visRemove;
+    button -label "선택된 오브젝트\nmatte ON"  -bgc .5 .8 .5 -command _matteOn;
+    button -label "선택된 오브젝트\nmatte OFF" -bgc .5 .8 .5 -command _matteOff;
+    
+    intFieldGrp -label "Minimum Edge Length"   _setEdgeId;
+    intFieldGrp -label "Maximum Subdivisions"  _setSubdivId;
+ 
+    button -label "선택한 오브젝트에 적용" -command _setLocal;
+    button -label "모든 오브젝트에 적용"      -command _setAll;
+    /*
+    button -label "set Selected Only" -command _setLocal;
+    button -label "set All Mesh"      -command _setAll;
+    */
+
+    showWindow subCount;
+    
+}
+
+proc _visOn(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    for($temp in $selected ){
+        SelectHierarchy;
+
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment ($tempIn[$j]+".rsEnableVisibilityOverrides");
+                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
+                setAttr ($tempIn[$j]+".rsPrimaryRayVisible") 1;
+            }
+            $j++;
+            
+        }
+        clear $tempIn;
+        $i++;
+
+    }
+    clear $selected;
+
+}
+proc _visOff(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    for($temp in $selected ){
+        SelectHierarchy;
+
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment ($tempIn[$j]+".rsEnableVisibilityOverrides");
+                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
+                setAttr ($tempIn[$j]+".rsPrimaryRayVisible") 0;
+            }
+            $j++;
+            
+        }
+        clear $tempIn;
+        $i++;
+
+    }
+    clear $selected;
+}
+proc _visRemove(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    for($temp in $selected ){
+        SelectHierarchy;
+
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment -remove ($tempIn[$j]+".rsEnableVisibilityOverrides");
+            }
+            $j++;
+            
+        }
+        clear $tempIn;
+        $i++;
+
+    }
+    clear $selected;
+}
+
+
+proc _matteOn(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    
+    for($temp in $selected ){
+        SelectHierarchy;
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment ($tempIn[$j]+".rsMatteEnable");
+                setAttr ($tempIn[$j]+".rsMatteEnable") 1;
+                setAttr ($tempIn[$j]+".rsMatteShowBackground") 0;
+                setAttr ($tempIn[$j]+".rsMatteAlpha") 0;
+            }
+            $j++;
+            
+        }
+        
+        $i++;
+    }
+    
+}
+proc _matteOff(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    
+    for($temp in $selected ){
+        SelectHierarchy;
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment ($tempIn[$j]+".rsMatteEnable");
+                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
+                setAttr ($tempIn[$j]+".rsMatteEnable") 0;
+            }
+            $j++;
+            
+        }
+        
+        $i++;
+    }
+    
+}
+
+proc _setLocal(){
+    string $selected[]=`ls -sl`;
+    string $temp;
+    int $i=0;
+    float $edgeLength=`intFieldGrp  -q -v1 _setEdgeId`;
+    float $subdivs=`intFieldGrp  -q -v1 _setSubdivId`;
+    
+    
+    for($temp in $selected ){
+        SelectHierarchy;
+        string $tempIn[]=`ls -sl`;
+        string $tempInTemp;
+        int $j=0;
+        for($tempInTemp in $tempIn){
+            if(`objExists ($tempIn[$j]+".rsEnableSubdivision")`){
+                setAttr ($tempIn[$j]+".rsEnableSubdivision") 1;
+                setAttr ($tempIn[$j]+".rsMinTessellationLength") $edgeLength;  
+                setAttr ($tempIn[$j]+".rsMaxTessellationSubdivs") $subdivs;
+                displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
+            }
+            $j++;
+            
+        }
+        
+        $i++;
+    }
+    
+
+
+}
+
+
+proc _setAll(){
+    string $tempSelectmesh[]=`ls -type "mesh"`;
+    string $temp;
+    int $i=0;
+    float $edgeLength=`intFieldGrp  -q -v1 _setEdgeId`;
+    float $subdivs=`intFieldGrp  -q -v1 _setSubdivId`;
+    
+    
+    for($temp in $tempSelectmesh){
+        setAttr ($tempSelectmesh[$i]+".rsEnableSubdivision") 1;
+        setAttr ($tempSelectmesh[$i]+".rsMinTessellationLength") $edgeLength;  
+        setAttr ($tempSelectmesh[$i]+".rsMaxTessellationSubdivs") $subdivs;
+        displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
+        $i++;
+    }
+
+}
+
+
+subCount();
