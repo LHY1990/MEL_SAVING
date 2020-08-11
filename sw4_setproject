@@ -1,0 +1,736 @@
+//최종 수정시간 2019.07.24.11:00
+//개인용 LHY version 1.12
+
+
+
+
+global proc workSpace(){
+    
+
+    
+    if (`window -ex lightWindow`){
+        deleteUI -window lightWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    window -title "Lighting Default Setup v1.0" lightWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+//버튼 시작   
+    button -label "\n  SET Project SW4\n\n  OPEN FILE\n    "           -bgc .8 .8 .8  -command method_01 ;
+    separator -h 10  -style "none" ;
+    
+
+
+    button -label "Render Layer\nand \nLighting Filedrop"                -command method_02 ;
+    separator -h 10 -style "none";
+    button -label "               AUTOMATIC SETUP               " -bgc .6 .6 .67 -command method_03 ;
+    separator -h 10 -style "none";
+    button -label "카메라 선택후 클릭"                          -command method_04 ;
+
+
+
+
+
+    separator -h 10 -style "none";
+    checkBox -label "MESH PARAMETER"  -onc method_04A -ofc method_04B;
+    separator -h 2 -style "none";
+    button -label "CH A  SET" -bgc .75 .5 .5 -command method_05 ;    
+    button -label "CH B  SET" -bgc .75 .5 .5 -command method_06 ;
+    button -label "CH C  SET" -bgc .75 .5 .5 -command method_07 ;
+    separator -h 2 -style "none";
+    button -label "BG A  SET" -bgc .75 .5 .5 -command method_08 ;
+    button -label "BG B  SET" -bgc .75 .5 .5 -command method_09 ;
+    separator -h 2 -style "none";
+    button -label "PROP SET"  -bgc .75 .5 .5 -command method_10 ;
+    separator -h 2 -style "none";
+    button -label "SHAVE SET"  -bgc .75 .5 .5 -command method_10A ;
+
+    separator -h 10 -style "none";    
+    button -label "Bring Lights to Selection" -command method_11 ;
+    separator -h 10 -style "none";
+    if(`objExists "CHA_ADDLight.rotate"`){
+        setAttr CHA_ADDLight.rotateX 0;
+        setAttr CHA_ADDLight.rotateZ 0;
+        attrFieldSliderGrp -min -180.0 -max 180.0 -at CHA_ADDLight.rotateY ;
+    }
+    
+    separator -h 10 -style "none";
+    button -label "Make Light Link"     -bgc .7 1 .7         -command method_12 ;
+    button -label "Break Light Link"    -bgc 1 .7 .7         -command method_13 ;
+    
+    separator -h 10 -style "none";
+    text -label "파일을 저장해 주세요";
+    separator -h 10 -style "none";
+    button -label " BG auto" -command method_13A;
+    button -label " CH auto" -command method_14 ;
+    button -label "AOP auto" -command method_15 ;
+    button -label "MSK auto" -command method_16 ;
+    button -label "SHD auto" -command method_17 ;
+    
+    separator -h 10 -style "none";
+    button -label "\nGI Baking\n"          -bgc .6 .67 .6                   -command method_17A;
+    
+    separator -h 10 -style "none";
+    button -label "Translate \nOverride"     -bgc .8 .4 0.08        -command method_18 ;
+    button -label "Rotate \nOverride"        -bgc .8 .4 0.08        -command method_19 ;
+    button -label "Scale \nOverride"         -bgc .8 .4 0.08        -command method_20 ;
+    separator -h 3 -style "none";
+    button -label "Translate \nOverride Cancel"     -bgc .2 .6 0.92       -command method_21 ;
+    button -label "Rotate \nOverride Cancel"        -bgc .2 .6 0.92       -command method_22 ;
+    button -label "Scale \nOverride Cancel"         -bgc .2 .6 0.92       -command method_23 ;
+	
+	separator -h 10 -style "none";
+    button -label "Fix Render Layer" -command method_23A ;
+
+    separator -h 10 -style "none";
+    button -label "DEADLINE" -command method_24 ;
+    
+    
+    
+//버튼완료    
+    showWindow lightWindow;
+    
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+global int $meshOn=0;
+
+
+global proc method_01(){
+    string $setProjectPath;
+    $setProjectPath = "Z:/SW_S4_Pipeline";
+    setProject $setProjectPath;
+    OpenScene;
+}
+    //셋프로젝트를 합니다. 셋프로젝트 이후 파일 오픈을 지원합니다.
+    
+global proc method_02(){
+    performFileDropAction ("Z:/SW_S4_Pipeline/03_Main-Production/06_LightingSet/RS_LIGHT_S4/RS_RenderLayer_Sw4_V3.0_16bit.ma");
+    //렌더레이어를 파일드랍합니다.
+
+    performFileDropAction ("Z:/SW_S4_Pipeline/03_Main-Production/06_LightingSet/RS_LIGHT_S4/Main_Light_S4_V3.0.ma");
+    //라이팅을 파일드랍합니다.
+	RenderLayerEditorWindow;
+}
+global proc method_03(){
+   if(!`window -ex RenderGlobalsWindow`){ 
+       RenderGlobalsWindow;
+       }
+   deleteUI unifiedRenderGlobalsWindow;
+   //만약 렌더창이 열려있다면 렌더창을 끕니다.
+   renderLayerEditorRenderable RenderLayerTab "defaultRenderLayer" "0";
+   //마스터레이어를 끕니다.
+    editRenderLayerGlobals -enableAutoAdjustments 1;
+    editRenderLayerGlobals -useCurrent 1;
+    //렌더레이어 세팅을 자동으로 켜준다.
+    setAttr "defaultRenderGlobals.currentRenderer" -type "string" "redshift";
+    //렌더 세팅을 레드쉬프트로 가져옵니다.
+
+    ////////////////////////////////////////////////////////////
+    loadNodePresets "RS_SW4_CH";
+    //마야 프리셋을 가져옵니다. 필요에 따라 이름을 편집하여 사용합니다.//
+    ////////////////////////////////////////////////////////////        
+
+    DeleteAllSounds;
+    //모든 사운드 파일을 지웁니다.
+    int $numberOfStartFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    setAttr "defaultRenderGlobals.startFrame" $numberOfStartFrame;
+    int $numberOfEndFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+    setAttr "defaultRenderGlobals.endFrame" $numberOfEndFrame;
+    //프레임 레인지를 가져와서 렌더 레이어로 가져옵니다.
+    colorManagementPrefs -edit -cmEnabled 1;
+    //컬러매니지먼트를 켭니다.
+    currentUnit -time pal;
+    //FPS를 25로 변경합니다.
+    editRenderLayerMembers -noRecurse CH_COL Main_LIGHT;
+    editRenderLayerMembers -noRecurse BG_COL Main_LIGHT;
+    editRenderLayerMembers -noRecurse CH_SHD Main_LIGHT;
+    //라이트를 캐릭터, 배경, 그림자 레이어에 넣습니다.
+}
+global proc method_04(){
+
+
+	string $Cameras1[] = `listCameras`;
+		int $ioi=0;
+		string $camm;
+
+		if(!`window -ex RenderGlobalsWindow`){ 
+    	RenderGlobalsWindow;
+    	}
+
+	for($camm in $Cameras1){
+    
+   		 setAttr ($Cameras1[$ioi]+".renderable") 0;
+   		 //print $Cameras1[$ioi];
+    	//print "\n";
+    	$ioi=$ioi+1;
+	}
+
+
+    deleteUI unifiedRenderGlobalsWindow;
+
+    string $shapes[1]=`ls -sl`;
+    setAttr ($shapes[0]+".nearClipPlane") 0.1;
+    setAttr ($shapes[0]+".farClipPlane") 5000;
+    //카메라 니어클립과 파 클립을 0.1과 5000으로 기본 지정합니다.
+    setAttr ($shapes[0]+".renderable") 1;
+    setAttr ("persp.renderable") 0;
+    setAttr ("front.renderable") 0;
+    setAttr ("top.renderable") 0;
+    setAttr ("side.renderable") 0;
+    //선택한 카메라를 렌더 세팅에 넣습니다 이때 다른카메라는 확인하여 지웁니다.
+    
+    editRenderLayerGlobals -currentRenderLayer BG_MATTE;
+    editRenderLayerAdjustment ($shapes[0]+".farClipPlane");
+    setAttr ($shapes[0]+".farClipPlane") 100000;
+    editRenderLayerGlobals -currentRenderLayer defaultRenderLayer;
+}
+proc method_04A(){
+    global int $meshOn;
+    $meshOn++;
+    print $meshOn;
+    
+}
+proc method_04B(){
+    global int $meshOn ;
+    $meshOn--;
+    print $meshOn;
+}
+
+global proc method_05(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_CH_A"`)   
+    {
+        redshiftCreateVisibilityNode() ;
+        rename "rsVisibility1" "rsVisibility_CH_A";
+        redshiftCreateMatteParametersNode();
+        rename "rsMatteParameters1" "rsMatteParameters_CH_A";
+        setAttr "rsMatteParameters_CH_A.matteShowBackground" 0;
+        setAttr "rsMatteParameters_CH_A.matteAlpha" 0;
+        setAttr "rsMatteParameters_CH_A.matteEnable" 0;
+        if($meshOn==1){
+            redshiftCreateMeshParametersNode();
+            setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+            setAttr "rsMeshParameters1.maxTessellationSubdivs" 2;
+            setAttr "rsMeshParameters1.enableDisplacement" 0;
+            rename "rsMeshParameters1""rsMeshParameters_CH_A" ;
+        }
+    }
+}
+global proc method_06(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_CH_B"`)   
+    {
+        redshiftCreateVisibilityNode();
+        rename "rsVisibility1" "rsVisibility_CH_B";
+        redshiftCreateMatteParametersNode();
+        rename "rsMatteParameters1" "rsMatteParameters_CH_B";
+        setAttr "rsMatteParameters_CH_B.matteShowBackground" 0;
+        setAttr "rsMatteParameters_CH_B.matteAlpha" 0;
+        setAttr "rsMatteParameters_CH_B.matteEnable" 0;
+        if($meshOn==1){
+            redshiftCreateMeshParametersNode();
+            setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+            setAttr "rsMeshParameters1.maxTessellationSubdivs" 2;
+            setAttr "rsMeshParameters1.enableDisplacement" 0;
+            rename "rsMeshParameters1""rsMeshParameters_CH_B";   
+        } 
+    }
+}
+global proc method_07(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_CH_C"`)   
+    {
+        redshiftCreateVisibilityNode();
+        rename "rsVisibility1" "rsVisibility_CH_C";
+        redshiftCreateMatteParametersNode();
+        rename "rsMatteParameters1" "rsMatteParameters_CH_C";
+        setAttr "rsMatteParameters_CH_C.matteShowBackground" 0;
+        setAttr "rsMatteParameters_CH_C.matteAlpha" 0;
+        setAttr "rsMatteParameters_CH_C.matteEnable" 0;
+        if($meshOn==1){
+            redshiftCreateMeshParametersNode();
+            setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+            setAttr "rsMeshParameters1.maxTessellationSubdivs" 2;
+            setAttr "rsMeshParameters1.enableDisplacement" 0;
+            rename "rsMeshParameters1""rsMeshParameters_CH_C";
+        }    
+    }
+}
+global proc method_08(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_BG_A"`)   
+    {
+    redshiftCreateVisibilityNode();
+    rename "rsVisibility1" "rsVisibility_BG_A";
+    redshiftCreateMatteParametersNode();
+    rename "rsMatteParameters1" "rsMatteParameters_BG_A";
+    setAttr "rsMatteParameters_BG_A.matteShowBackground" 0;
+    setAttr "rsMatteParameters_BG_A.matteAlpha" 0;
+    setAttr "rsMatteParameters_BG_A.matteEnable" 0;
+    if($meshOn==1){
+        redshiftCreateMeshParametersNode();
+        setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+        setAttr "rsMeshParameters1.maxTessellationSubdivs" 0;
+        setAttr "rsMeshParameters1.enableDisplacement" 0;
+        rename "rsMeshParameters1""rsMeshParameters_BG_A";
+        }
+    }
+}
+global proc method_09(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_BG_B"`)   
+    {
+    redshiftCreateVisibilityNode();
+    rename "rsVisibility1" "rsVisibility_BG_B";
+    redshiftCreateMatteParametersNode();
+    rename "rsMatteParameters1" "rsMatteParameters_BG_B";
+    setAttr "rsMatteParameters_BG_B.matteShowBackground" 0;
+    setAttr "rsMatteParameters_BG_B.matteAlpha" 0;
+    setAttr "rsMatteParameters_BG_B.matteEnable" 0;
+    if($meshOn==1){
+        redshiftCreateMeshParametersNode();
+        setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+        setAttr "rsMeshParameters1.maxTessellationSubdivs" 0;
+        setAttr "rsMeshParameters1.enableDisplacement" 0;
+        rename "rsMeshParameters1""rsMeshParameters_BG_B"; 
+        }
+    }
+}
+global proc method_10(){
+    global int $meshOn;
+    if(!`objExists "rsVisibility_PROP"`)   
+    {
+    redshiftCreateVisibilityNode();
+    rename "rsVisibility1" "rsVisibility_PROP";
+    redshiftCreateMatteParametersNode();
+    rename "rsMatteParameters1" "rsMatteParameters_PROP";
+    setAttr "rsMatteParameters_PROP.matteShowBackground" 0;
+    setAttr "rsMatteParameters_PROP.matteAlpha" 0;
+    setAttr "rsMatteParameters_PROP.matteEnable" 0;
+    if($meshOn==1){
+        redshiftCreateMeshParametersNode();
+        setAttr "rsMeshParameters1.outOfFrustumTessellationFactor" 2;
+        setAttr "rsMeshParameters1.maxTessellationSubdivs" 2;
+        setAttr "rsMeshParameters1.enableDisplacement" 0;
+        rename "rsMeshParameters1""rsMeshParameters_PROP"; 
+        }
+    }
+}
+
+global proc method_10A(){
+    if(!`objExists "rsVisibility_SHAVE"`)   
+    {
+    redshiftCreateVisibilityNode();
+    rename "rsVisibility1" "rsVisibility_SHAVE";
+    redshiftCreateMatteParametersNode();
+    rename "rsMatteParameters1" "rsMatteParameters_SHAVE";
+    setAttr "rsMatteParameters_SHAVE.matteShowBackground" 0;
+    setAttr "rsMatteParameters_SHAVE.matteAlpha" 0;
+    setAttr "rsMatteParameters_SHAVE.matteEnable" 0;
+    }
+}
+
+global proc method_11(){
+    $tempSelect = `ls -sl`;
+    select "sunDirection";
+    select -add $tempSelect;
+    matchTransform -pos;
+    //선택한 위치로 선디렉트 라이트를 가져옵니다.
+
+    $tempSelect = `ls -sl`;
+    select "CHA_ADDLight";
+    select -add $tempSelect;
+    matchTransform -pos;
+    //선택한 위치로 백라이트를 가져옵니다.
+
+}
+global proc method_12(){
+    MakeLightLinks;
+    //라이트링킹을 합니다.
+
+}
+global proc method_13(){
+    BreakLightLinks;
+    //브레이크 라이트 링킹을 합니다.
+
+}
+global proc method_13A(){
+
+	//editRenderLayerGlobals -currentRenderLayer BG_COL;	
+
+    setAttr "redshiftOptions.motionBlurEnable" 1;
+    setAttr "redshiftOptions.motionBlurNumTransformationSteps" 10;
+    int $doubleNum=0;
+    int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+
+    $doubleNum=($endFrame-$startFrame+1);
+    $doubleNum=$doubleNum*2;
+
+    setAttr "redshiftOptions.motionBlurFrameDuration" $doubleNum;
+    
+    setAttr "redshiftOptions.motionBlurShutterStart" 0;
+    setAttr "redshiftOptions.motionBlurShutterEnd" 1;
+    setAttr "redshiftOptions.motionBlurShutterPosition" 1;
+    
+    //모션블러 옵션을 프레임범위의 2배수로 변경합니다.
+    setAttr "redshiftOptions.motionBlurEnable" 0;
+    setAttr "redshiftOptions.primaryGIEngine" 3;
+    setAttr "redshiftOptions.secondaryGIEngine" 2;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 0;
+    setAttr "redshiftOptions.irradianceCacheMode" 0;
+    editRenderLayerAdjustment "redshiftOptions.irradiancePointCloudFilename";
+    editRenderLayerAdjustment "redshiftOptions.irradianceCacheFilename";
+    //gi굽기 시작
+    string $filePath1=`file -q -sceneName`;
+    string $output[7];
+    tokenize $filePath1 "/" $output;
+
+    string $PATH_IPC;
+    string $PATH_IC;
+    $PATH_IPC= ($output[2]+"\\"+$output[3]+"\\"+$output[4]+"\\"+$output[5]+"\\"+$output[5]+"_IPC.rsmap");
+    $PATH_IC= ($output[2]+"\\"+$output[3]+"\\"+$output[4]+"\\"+$output[5]+"\\"+$output[5]+"_IC.rsmap");
+    //저장된 파일 위치로 GI를 구워줍니다.
+
+    setAttr -type "string" redshiftOptions.irradiancePointCloudFilename $PATH_IPC;
+    setAttr -type "string" redshiftOptions.irradianceCacheFilename $PATH_IC;
+    
+    
+    
+    
+    setAttr "redshiftOptions.irradiancePointCloudMode" 3;
+    setAttr "redshiftOptions.irradianceCacheMode" 3;
+    //예상되는 파일위치로 gi가 구워질 장소를 적어줍니다.
+
+}
+
+
+
+
+
+
+global proc method_14(){
+
+	//editRenderLayerGlobals -currentRenderLayer CH_COL;
+    select CHA_ADDLight ;
+    ShowSelectedObjects;
+    select -cl;
+    select CH_GROUND_PLANE ;
+    ShowSelectedObjects;
+    select -cl;
+    //CHA_ADDLight를 보여줍니다.
+	redshiftCreateGlobalShader RedshiftEnvironment "rendernode/redshift/shader/environment" "environment";
+	delete rsEnvironment1;
+
+	editRenderLayerAdjustment "redshiftOptions.environment";
+    redshiftChangeGlobalShader redshiftEnvironment_CH1_3 "environment";
+    //특정 렌더레이어에서 캐릭터 인바이런먼트를 CH1_3으로 변경합니다.
+
+}
+global proc method_15(){
+
+	//editRenderLayerGlobals -currentRenderLayer CH_AOP;
+
+    if(`objExists "rsVisibility_CH_A.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_A.primaryRayVisible";
+        setAttr "rsVisibility_CH_A.primaryRayVisible" 0;
+    }
+    if(`objExists "rsVisibility_CH_B.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_B.primaryRayVisible";
+        setAttr "rsVisibility_CH_B.primaryRayVisible" 0;
+    }
+    if(`objExists "rsVisibility_CH_C.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_C.primaryRayVisible";
+        setAttr "rsVisibility_CH_C.primaryRayVisible" 0;
+    }
+    
+    if(`objExists "rsVisibility_PROP.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_PROP.primaryRayVisible";
+        setAttr "rsVisibility_PROP.primaryRayVisible" 0;
+    }
+    
+    if(`objExists "rsVisibility_BG_A.aoCaster"`){
+        editRenderLayerAdjustment "rsVisibility_BG_A.aoCaster";
+        setAttr "rsVisibility_BG_A.aoCaster" 0;
+        editRenderLayerAdjustment "rsVisibility_BG_A.shadowCaster";
+        setAttr "rsVisibility_BG_A.shadowCaster" 0;
+    }
+    
+    if(`objExists "rsVisibility_BG_B.aoCaster"`){
+        editRenderLayerAdjustment "rsVisibility_BG_B.aoCaster";
+        setAttr "rsVisibility_BG_B.aoCaster" 0;
+        editRenderLayerAdjustment "rsVisibility_BG_B.shadowCaster";
+        setAttr "rsVisibility_BG_B.shadowCaster" 0;
+    }
+    
+        if(`objExists "rsVisibility_SHAVE.aoCaster"`){
+        editRenderLayerAdjustment "rsVisibility_SHAVE.aoCaster";
+        setAttr "rsVisibility_SHAVE.aoCaster" 0;
+        editRenderLayerAdjustment "rsVisibility_SHAVE.shadowCaster";
+        setAttr "rsVisibility_SHAVE.shadowCaster" 0;
+    }
+    
+    ////////////////////////////////////////////////////////////////////
+    string $listsA[] = `ls -type RedshiftProxyMesh`;
+   select $listsA;
+   ////////////////////////////////////////////////////////////////////
+   int $count;
+   int $i;
+   int $x;
+   //select `listRelatives -ad`;
+   string $selectionList[] = `ls -sl`;
+   string $clayer = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $count = 0;
+   for ( $i = 0; $i < size( $selectionList ); $i++ ) {
+        string $s = $selectionList[$i];
+      if($clayer == "defaultRenderLayer"){              
+       setAttr ($s+".materialMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($s+".materialMode");
+       setAttr ($s+".materialMode") 1;
+       }              
+   }
+   $count++;
+   /////////////////////////////////////////////////////////////////////
+   int $countA;
+   int $iA;
+   int $xA;
+   //select `listRelatives -ad`;
+   string $selectionListA[] = `ls -sl`;
+   string $clayerA = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $countA = 0;
+   for ( $iA = 0; $iA < size( $selectionListA ); $iA++ ) {
+        string $sA = $selectionListA[$iA];
+      if($clayerA == "defaultRenderLayer"){              
+       setAttr ($sA+".visibilityMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($sA+".visibilityMode");
+       setAttr ($sA+".visibilityMode") 1;
+       }              
+   }
+   $countA++;
+    /////////////////////////////////////////////////////////////////////
+}
+global proc method_16(){
+    
+    if(`objExists "rsMatteParameters_BG_A.matteEnable"`){
+        editRenderLayerAdjustment "rsMatteParameters_BG_A.matteEnable";
+        setAttr "rsMatteParameters_BG_A.matteEnable" 1;
+    }
+    if(`objExists "rsMatteParameters_BG_B.matteEnable"`){
+        editRenderLayerAdjustment "rsMatteParameters_BG_B.matteEnable";
+        setAttr "rsMatteParameters_BG_B.matteEnable" 1;
+    }
+	//editRenderLayerGlobals -currentRenderLayer CH_MASK;
+
+    string $listsA[] = `ls -type RedshiftProxyMesh`;
+   select $listsA;
+   ////////////////////////////////////////////////////////////////////
+   int $count;
+   int $i;
+   int $x;
+   //select `listRelatives -ad`;
+   string $selectionList[] = `ls -sl`;
+   string $clayer = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $count = 0;
+   for ( $i = 0; $i < size( $selectionList ); $i++ ) {
+        string $s = $selectionList[$i];
+      if($clayer == "defaultRenderLayer"){              
+       setAttr ($s+".materialMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($s+".materialMode");
+       setAttr ($s+".materialMode") 1;
+       }              
+   }
+   $count++;
+   /////////////////////////////////////////////////////////////////////
+   int $countA;
+   int $iA;
+   int $xA;
+   //select `listRelatives -ad`;
+   string $selectionListA[] = `ls -sl`;
+   string $clayerA = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $countA = 0;
+   for ( $iA = 0; $iA < size( $selectionListA ); $iA++ ) {
+        string $sA = $selectionListA[$iA];
+      if($clayerA == "defaultRenderLayer"){              
+       setAttr ($sA+".visibilityMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($sA+".visibilityMode");
+       setAttr ($sA+".visibilityMode") 1;
+       }              
+   }
+   $countA++;
+}
+global proc method_17(){
+
+
+	//editRenderLayerGlobals -currentRenderLayer CH_SHD;
+
+    if(`objExists "rsVisibility_CH_A.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_A.primaryRayVisible";
+        setAttr "rsVisibility_CH_A.primaryRayVisible" 0;
+        editRenderLayerAdjustment "rsVisibility_CH_A.aoCaster";
+        setAttr "rsVisibility_CH_A.aoCaster" 0;
+    }
+
+    
+    
+    if(`objExists "rsVisibility_CH_B.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_B.primaryRayVisible";
+        setAttr "rsVisibility_CH_B.primaryRayVisible" 0;
+        editRenderLayerAdjustment "rsVisibility_CH_B.aoCaster";
+        setAttr "rsVisibility_CH_B.aoCaster" 0;
+    }
+
+    
+    if(`objExists "rsVisibility_CH_C.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_CH_C.primaryRayVisible";
+        setAttr "rsVisibility_CH_C.primaryRayVisible" 0;
+        editRenderLayerAdjustment "rsVisibility_CH_C.aoCaster";
+        setAttr "rsVisibility_CH_C.aoCaster" 0;
+    }
+
+    
+    
+    if(`objExists "rsVisibility_PROP.primaryRayVisible"`){
+        editRenderLayerAdjustment "rsVisibility_PROP.primaryRayVisible";
+        setAttr "rsVisibility_PROP.primaryRayVisible" 0;
+        editRenderLayerAdjustment "rsVisibility_PROP.aoCaster";
+        setAttr "rsVisibility_PROP.aoCaster" 0;
+    }
+
+
+    if(`objExists "rsVisibility_BG_A.shadowCaster"`){
+        editRenderLayerAdjustment "rsVisibility_BG_A.shadowCaster";
+        setAttr "rsVisibility_BG_A.shadowCaster" 0;
+    }
+
+    
+    if(`objExists "rsVisibility_BG_B.shadowCaster"`){
+        editRenderLayerAdjustment "rsVisibility_BG_B.shadowCaster";
+        setAttr "rsVisibility_BG_B.shadowCaster" 0;
+    }
+    
+    if(`objExists "rsVisibility_SHAVE.shadowCaster"`){
+        editRenderLayerAdjustment "rsVisibility_SHAVE.shadowCaster";
+        setAttr "rsVisibility_SHAVE.shadowCaster" 0;
+    }    
+
+    
+    //////////////////////////////////////////////////////////////////////
+    string $listsA[] = `ls -type RedshiftProxyMesh`;
+    select $listsA;
+   ////////////////////////////////////////////////////////////////////
+   int $count;
+   int $i;
+   int $x;
+   //select `listRelatives -ad`;
+   string $selectionList[] = `ls -sl`;
+   string $clayer = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $count = 0;
+   for ( $i = 0; $i < size( $selectionList ); $i++ ) {
+        string $s = $selectionList[$i];
+      if($clayer == "defaultRenderLayer"){              
+       setAttr ($s+".materialMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($s+".materialMode");
+       setAttr ($s+".materialMode") 1;
+       }              
+   }
+   $count++;
+   /////////////////////////////////////////////////////////////////////
+   int $countA;
+   int $iA;
+   int $xA;
+   //select `listRelatives -ad`;
+   string $selectionListA[] = `ls -sl`;
+   string $clayerA = `editRenderLayerGlobals -q -currentRenderLayer`;
+
+   $countA = 0;
+   for ( $iA = 0; $iA < size( $selectionListA ); $iA++ ) {
+        string $sA = $selectionListA[$iA];
+      if($clayerA == "defaultRenderLayer"){              
+       setAttr ($sA+".visibilityMode") 1;
+       }
+      else{
+      editRenderLayerAdjustment ($sA+".visibilityMode");
+       setAttr ($sA+".visibilityMode") 1;
+       }              
+   }
+   $countA++;
+    /////////////////////////////////////////////////////////////////////
+}
+
+global proc method_17A(){
+    int $motionBlurNumeber=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    currentTime $motionBlurNumeber;
+    setAttr "redshiftOptions.motionBlurEnable" 1;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 0;
+    setAttr "redshiftOptions.irradianceCacheMode" 0;
+    redshiftRvRender "render" "";
+    setAttr "redshiftOptions.motionBlurEnable" 0;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 1;
+    setAttr "redshiftOptions.irradianceCacheMode" 1;
+    //GI를 굽고 바로 렌더하여 확인해 볼수 있도록 합니다.
+}
+
+global proc method_18(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment ($tempObject[0]+".translate");
+    //해당 레이어의 위치값 오버라이드 합니다.
+}
+global proc method_19(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment ($tempObject[0]+".rotate");
+    //해당 레이어의 회전값을 오버라이드 합니다.
+}
+global proc method_20(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment ($tempObject[0]+".scale");
+    //해당 레이어의 크기값을 오버라이드 합니다.
+}
+global proc method_21(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment -remove ($tempObject[0]+".translate");
+    //해당 레이어의 위치값을 해제합니다.
+}
+global proc method_22(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment -remove ($tempObject[0]+".rotate");
+    //해당 레이어의 회전값을 해제합니다.
+}
+global proc method_23(){
+    string $tempObject[1] =`ls -sl`;
+    editRenderLayerAdjustment -remove ($tempObject[0]+".scale");
+    //해당 레이어의 크기값을 해제 합니다.
+}
+global proc method_23A(){
+    fixRenderLayerOutAdjustmentErrors;
+}
+global proc method_24(){
+    SubmitJobToDeadline;
+}
+    //데드라인 서밋
+
+workSpace();
