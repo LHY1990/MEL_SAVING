@@ -1,0 +1,40 @@
+//이 멜은 레드쉬프트 피지컬 라이트를 스팟으로 바로 만들어 주거나 렉트라이트를 만들어서 소프트박스 이미지를 넣어줍니다.
+
+window;
+columnLayout ;
+button -label "rsSpot Light" -h 100 -w 130 -bgc .9 .7 .7 -command "rsSpot";
+button -label "rsLect Light" -h 100 -w 130 -bgc .7 .9 .7 -command "rsLect";
+showWindow;
+
+
+proc rsSpot(){
+    redshiftCreateLight "RedshiftPhysicalLight";
+    string $selectTemp[1]=`ls -sl`;
+    setAttr ($selectTemp[0]+".lightType") 2;
+    setAttr ($selectTemp[0]+".ty") 5;
+    rename ($selectTemp[0]) "rsSpot001" ;
+     
+}
+
+proc rsLect(){
+    redshiftCreateLight "RedshiftPhysicalLight";
+    string $selectTemp[1]=`ls -sl`;
+    //setAttr "rsPhysicalLightShape?.lightType" 2;
+    rename ($selectTemp[0]) "rsLect001" ;
+    string $selectLIT[1]=`ls -sl`; 
+    setAttr ($selectLIT[0]+".ty") 5;
+    setAttr ($selectLIT[0]+".areaVisibleInRender") 0;
+    setAttr ($selectLIT[0]+".intensity") 10;                             
+     
+    nodeEdCreateNodeCommand "file";
+    string $fileNodeSLT[1]=`ls -sl`;
+    setAttr -type "string" ($fileNodeSLT[0]+".fileTextureName") "Z:/Shader_Library/HDR/hdri_light/softboxes/SoftBox021.exr";
+    setAttr -type "string" ($fileNodeSLT[0]+".colorSpace") "Raw";
+    
+    defaultNavigation -ce -source ($fileNodeSLT[0]) -destination ($selectLIT[0]+".color");
+     
+    
+}
+
+
+
