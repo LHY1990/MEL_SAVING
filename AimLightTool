@@ -1,0 +1,81 @@
+global proc LitAimWindow(){
+    
+
+    
+    if (`window -ex lightAimWindow`){
+        deleteUI -window lightAimWindow;
+    }
+    
+    window -title "light set tool" lightAimWindow;
+    
+    rowColumnLayout   ;
+    
+    button -label "\nGet position data from seletion\n"  -command _getFromSltObj;
+    separator -style "none" -h 10 ;
+    button -label "\nlight selecting\n"  -command _setToSltLit;
+    separator -style "none" -h 10 ;
+    button -label "\nmake locator\n"  -command _makeAim;
+    
+    //attrFieldSliderGrp -min -180.0 -max 180.0 -at .offsetXY ;
+    
+
+    showWindow lightAimWindow;
+    
+}
+
+LitAimWindow();
+////////////////////////////////////////////////////////////////////////////////////////
+global string $selectObj[1];
+global float $selObjPos[3];
+global string $selectLight;
+global float $selLitPos[];
+
+
+proc _getFromSltObj(){
+    string $selectObj[]=`ls -sl`;
+    global float $selObjPos[3];
+    $selObjPos[0]=`getAttr ($selectObj[0]+".translateX")`;
+    $selObjPos[1]=`getAttr ($selectObj[0]+".translateY")`;
+    $selObjPos[2]=`getAttr ($selectObj[0]+".translateZ")`;
+    
+    
+    
+    
+    //float $rtPosition[3]=`getAttr ($selectObj[0]+".translatePivot")`;
+    print $selObjPos;
+}
+
+proc _setToSltLit(){
+    
+    global string $selectLight;
+    string $selectLightTemp[]=`ls -sl`;
+    $selectLight = $selectLightTemp[0];
+    //float $selLitPos[];
+    //$selLitPos[0]=`getAttr ($selLitPos[0]+".translateX")`;
+    //$selLitPos[1]=`getAttr ($selLitPos[0]+".translateY")`;
+    //$selLitPos[2]=`getAttr ($selLitPos[0]+".translateZ")`;
+    //move -rpr $selObjPos[0] $selObjPos[1] $selObjPos[2] ($selectLight[0]+".scalePivot") ($selectLight[0]+".rotatePivot") ;
+    print $selectLight;
+}
+
+
+proc _makeAim(){
+    //
+    global string $selectObj[];
+    global string $selectLight;
+    global float $selObjPos[3];
+    //전역 변수 호출
+    string $locatorName=$selectLight+"_locatorAim";
+    spaceLocator -p $selObjPos[0] $selObjPos[1] $selObjPos[2] -n $locatorName;
+    CenterPivot;
+    FreezeTransformations;
+    string $tempSelectedLocator[]=`ls -sl`;
+    
+    select  $tempSelectedLocator[0];
+    select  -add $selectLight;
+    aimConstraint -maintainOffset;
+    //distanceDimension 
+    
+}
+
+
