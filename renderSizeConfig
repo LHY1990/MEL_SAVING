@@ -1,0 +1,113 @@
+global int $originalW=0;
+global int $originalH=0;
+
+
+global proc workSpaceRENDER(){
+    
+
+    
+    if (`window -ex renderWindow`){
+        deleteUI -window renderWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    window -title "렌더 사이즈 컨트롤러" renderWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+//버튼 시작   
+    
+    
+
+    //intFieldGrp -label "startFrame"   ;
+    //intFieldGrp -label "endFrame"     ;
+    text -h 40 -label "렌더 사이즈 컨트롤러";
+    button -label "resolution 오버라이드"        -h 40      -bgc .734 .381 .026 -c  overrideRenderWH;
+    button -label "resolution 오버라이드 해제"    -h 40      -bgc .7 .9 .7 -c  removeOverrideRenderWH;
+    
+    //attrControlGrp -a defaultResolution.aspectLock;
+    separator -h 10 -style "none";
+    attrFieldSliderGrp  -min -1 -max 18000.0 -at defaultResolution.w ;
+    attrFieldSliderGrp  -min -1 -max 18000.0 -at defaultResolution.h ;
+    attrFieldSliderGrp -en 0 -min -1 -max 18000.0 -at defaultResolution.pixelAspect ;
+
+
+    text -h 40 -label "프리셋";
+    button -label "1665 x 900"       -bgc .75 .72 .7 -h 40       -c  res900;
+    button -label "1440 x 810"       -bgc .75 .72 .7 -h 40       -c  res810;   
+    button -label "1280 x 720"       -bgc .75 .72 .7 -h 40       -c  res720;
+    
+    text -h 40 -label "미니멀라이징";
+    //button -label "100%"       -h 40    -bgc .7 .72 .7   -c  res100;
+    button -label "75%"        -h 40    -bgc .7 .72 .7   -c  res075;
+    button -label "50%"        -h 40    -bgc .7 .72 .7   -c  res050;
+    button -label "25%"        -h 40    -bgc .7 .72 .7   -c  res025;
+    
+    
+
+    
+    
+    
+//버튼완료    
+    showWindow renderWindow;
+    
+}
+global proc overrideRenderWH(){
+    editRenderLayerAdjustment "defaultResolution.width";
+    editRenderLayerAdjustment "defaultResolution.height";
+}
+
+global proc removeOverrideRenderWH(){
+    editRenderLayerAdjustment -remove "defaultResolution.width";
+    editRenderLayerAdjustment -remove "defaultResolution.height";
+}
+
+global proc res100(){
+    global int $originalW=0;
+    global int $originalH=0;  
+   
+    setAttr "defaultResolution.width"   originalW;
+    setAttr "defaultResolution.height"  $originalH;
+}
+global proc res075(){
+    int $tempSizeW=`getAttr defaultResolution.width`;  
+    int $tempSizeH=`getAttr defaultResolution.height`; 
+    $tempSizeW=$tempSizeW*0.75; 
+    $tempSizeH=$tempSizeH*0.75;  
+    setAttr "defaultResolution.width"   $tempSizeW;
+    setAttr "defaultResolution.height"  $tempSizeH;
+}
+global proc res050(){
+    int $tempSizeW=`getAttr defaultResolution.width`;  
+    int $tempSizeH=`getAttr defaultResolution.height`;
+    $tempSizeW=$tempSizeW*0.5; 
+    $tempSizeH=$tempSizeH*0.5;   
+    setAttr "defaultResolution.width"   $tempSizeW;
+    setAttr "defaultResolution.height"  $tempSizeH;
+}
+global proc res025(){
+    int $tempSizeW=`getAttr defaultResolution.width`;  
+    int $tempSizeH=`getAttr defaultResolution.height`;  
+    $tempSizeW=$tempSizeW*0.25; 
+    $tempSizeH=$tempSizeH*0.25;    
+    setAttr "defaultResolution.width"   $tempSizeW;
+    setAttr "defaultResolution.height"  $tempSizeH;
+}
+
+
+
+
+
+global proc res900(){
+    setAttr "defaultResolution.width" 1665;
+    setAttr "defaultResolution.height" 900;
+}
+global proc res810(){
+    setAttr "defaultResolution.width" 1440;
+    setAttr "defaultResolution.height" 810;   
+}
+global proc res720(){
+    setAttr "defaultResolution.width" 1280;
+    setAttr "defaultResolution.height" 720;   
+}
+
+workSpaceRENDER();
