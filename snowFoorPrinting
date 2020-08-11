@@ -1,0 +1,429 @@
+//최종 수정시간 20191101 16:00
+global proc workSiyeon(){
+    
+
+    
+    if (`window -ex singleDup`){
+        deleteUI -window singleDup;
+    }
+    
+  
+    window -title "singleFrameStepDuplicater" singleDup;
+    
+    columnLayout -adjustableColumn 1;   
+    separator -h 20 -style "none";
+    text  -fn "boldLabelFont" -label "발자국 소스 오브젝트는 그룹화 된 상태에서\n 작업 되어야 합니다.\n\n모든 버튼은 한번만 누르셔야 합니다.";
+    separator -h 20 -style "none";
+    button -label "해당오브젝트를\n 한번만 복사합니다."           -bgc .8 .85 .8  -command Dup_Gsingle ;  
+    
+    separator -h 15 ;
+    
+    intSliderGrp -label "시작 프레임" -field true -minValue 0 -maxValue 1000 -value 101 getStart;
+    intSliderGrp -label "마지막 프레임" -field true -minValue 0 -maxValue 1000 -value 101 getEnd;
+    separator -h 10 -style "none" ;
+
+    button -label "프레임 지정 복사"                           -bgc .8 .85 .8  -command Dup_Range; 
+    separator -h 5 -style "none" ;
+    button -label "전체 프레임 복사"                           -bgc .8 .85 .8  -command Dup_FullRange;
+    separator -h 10  ;
+    text  -fn "fixedWidthFont"   -label "\n ~~~~#### 발자국 셋업 방법 ####~~~~ \n";
+    text  -fn "boldLabelFont" -align "left" -label "\n  1. 발자국 오브젝트를 visibility off해줍니다.\n";
+    
+     
+    text  -fn "boldLabelFont" -align "left" -label "  2. 아래 버튼으로 카메라를 만듭니다.\n";
+    button -label "\nDIS_CAM 만들기\n"      -bgc .8 .8 .82                       -command createCam;
+    separator -h 4 -style "none" ;
+    button -label "\nDIS_CAM 선택한 오브젝트 위치로 이동\n"      -bgc .7 .7 .72                -command moveCam;
+    text  -fn "boldLabelFont" -align "left" -label "\n 3. 카메라 위치 조정을 해줍니다.\n";
+    text  -fn "boldLabelFont" -align "left" -label " 4. 렌더링 사이즈는 좀 크게렌더하고\n    비율은 실제 렌더씬의 비율과 같게합니다.\n";
+    button -label "\n바닥모델링 선택후 클릭\nAO세이더 자동 셋업\n" -bgc .7 .7 .72   -command setupAO;
+    text  -fn "boldLabelFont" -align "left" -label "\n 5. 바닥오브젝트는 cast AO를 꺼줍니다.\n";
+    button -label "\nDis_CAM 익스포트 셀렉션\n"                -bgc .7 .7 .72               -command exportCam;
+    text  -fn "boldLabelFont" -align "left" -label "\n 6. 이미지 시퀀스를 렌더합니다.\n";
+    separator -h 2 -style "none";
+    text  -fn "boldLabelFont" -align "left" -label " 7. 아래 버튼은 해당 렌더파일에서 적용해야합니다.\n";
+    button -label "\n카메라 임포트(필수)\n"      -bgc .7 .7 .72                 -command import_Cam;
+    separator -h 4 -style "none" ;
+    button -label "\nstepDisplaceNode 생성\n(Dis_Cam자동연결)\n" -bgc .7 .7 .72 -command Displacement_CamProjSet_RS;
+    separator -h 4 -style "none" ;
+    button -label "\n바닥을 선택후 클릭하면 \nTesselaion과 Displacement가\n 활성화 됩니다.\n" -bgc .7 .7 .72 -command getReadyEarth;
+    text  -fn "boldLabelFont" -align "left" -label "\n 8. 해당 바닥 오브젝트에 DISPLACEMENT맵을 연결해 줍니다.\n";
+    text  -fn "boldLabelFont" -align "left" -label " 9. 이미지 시퀀스를 노드에 연결시켜줍니다 .\n";
+    text  -fn "boldLabelFont" -align "left" -label " 10. 노드 생성 상태에서 윈도우를 새로열면 컨트롤창이 나옵니다.\n";
+    separator -h 4;
+    if (`objExists "custumedLayerdTex.inputs[0].color"`){
+        attrColorSliderGrp -at custumedLayerdTex.inputs[0].color -label "최저 높이" ;
+        attrColorSliderGrp -at custumedLayerdTex.inputs[1].color -label "최고 높이" ;
+        attrColorSliderGrp -at custumedLayerdTex.inputs[2].color -label "땅 전체높이" ;
+        attrFieldSliderGrp -at custumedRamp.colorEntryList[1].position -label "퍼지는 정도";
+        text  -fn "boldLabelFont" -align "left" -label "\n                              # 반드시 마감 처리는 퍼지는 정도보다 작아야합니다 #";
+        attrFieldSliderGrp -at custumedRamp.colorEntryList[0].position -label "마감 처리";
+        
+    }
+    button -label "\n참조문서 하이퍼링크.\n" -bgc .7 .86 .72 -command hyperLink;
+
+
+
+
+
+
+
+    showWindow singleDup;
+    
+
+
+}
+
+
+
+
+proc Dup_Gsingle(){
+    
+
+    
+    
+    
+    string $temp;
+    int $i=0;
+    
+    string $selection[]=`ls -sl`;
+    
+    duplicate;
+    parent -w;
+    //group;
+    string $selectionN[]=`ls -sl`;
+    PreviousFrame;
+    for($i=0;$i<size($selectionN);$i++){
+        
+        setAttr ($selectionN[$i]+".visibility") 0;
+        setKeyframe ($selectionN[$i]+".visibility") ;
+        
+    }
+    NextFrame;
+
+    for($i=0;$i<size($selectionN);$i++){
+        
+        setAttr ($selectionN[$i]+".visibility") 1;
+        setKeyframe ($selectionN[$i]+".visibility") ;
+        
+    }    
+  
+    select -clear;
+    for($i=0;$i<size($selection);$i++){
+        select -add $selection[$i];
+    }
+    
+    
+}
+proc Dup_Range(){
+    int $startTime;
+    int $endTime;
+
+    $startTime = `intSliderGrp -q -v getStart`;
+    $endTime = `intSliderGrp -q -v getEnd`;
+    int $t;
+    int $u;
+    string $sel[] = `ls -sl`;
+
+    for ($t = $startTime; $t <= $endTime; $t++){
+        string $s = $sel[$t];
+
+    currentTime $t;
+
+    duplicate;
+    //group;
+    parent -w;
+    string $selG[] = `ls -sl`;
+    PreviousFrame;
+    
+
+    for ( $u = 0; $u < size( $selG ); $u++ ) {
+        string $x = $selG[$u];
+        setAttr ($x+".visibility") 0;
+        setKeyframe ($x+".visibility");
+         
+    }
+
+    NextFrame;
+    for ( $u = 0; $u < size( $selG ); $u++ ) {
+        string $x = $selG[$u];
+        setAttr ($x+".visibility") 1;
+        setKeyframe ($x+".visibility");
+           
+    }
+    group; 
+ 
+    select -r $sel;
+    }
+}
+proc Dup_FullRange(){
+    float $startTime = `playbackOptions -q -minTime`;
+    float $endTime = `playbackOptions -q -max`;
+    int $t;
+
+    string $sel[] = `ls -sl`;
+
+    for ($t = $startTime; $t <= $endTime; $t++){
+        string $s = $sel[$t];
+
+        currentTime $t;
+
+        duplicate;
+
+        parent -w;
+        string $selG[] = `ls -sl`;
+        PreviousFrame;
+        
+
+       for ( $u = 0; $u < size( $selG ); $u++ ) {
+           string $x = $selG[$u];
+            setAttr ($x+".visibility") 0;
+            setKeyframe ($x+".visibility");
+               
+        }
+
+        NextFrame;
+        for ( $u = 0; $u < size( $selG ); $u++ ) {
+           string $x = $selG[$u];
+            setAttr ($x+".visibility") 1;    
+            setKeyframe ($x+".visibility");
+            
+        }
+        group; 
+ 
+        select -r $sel;
+ 
+    }   
+}
+proc createCam(){
+    camera  -centerOfInterest 5 
+        -focalLength 35 
+        -lensSqueezeRatio 1 
+        -cameraScale 1 
+        -horizontalFilmAperture 1.41732 
+        -horizontalFilmOffset 0 
+        -verticalFilmAperture 0.94488 
+        -verticalFilmOffset 0 
+        -filmFit Fill 
+        -overscan 1 
+        -motionBlur 0 
+        -shutterAngle 144 
+        -nearClipPlane 0.1 
+        -farClipPlane 5000
+        -orthographic 0 
+        -orthographicWidth 30 
+        -panZoomEnabled 0 
+        -horizontalPan 0 
+        -verticalPan 0 
+        -zoom 1; 
+        //objectMoveCommand; cameraMakeNode 1 ""
+    string $tempCam[1]=`ls -sl`;
+    setAttr (($tempCam[0])+".ty") 50;
+    setAttr (($tempCam[0])+".rx") -90;
+    rename $tempCam[0] "Dis_Cam";
+}
+proc moveCam(){
+    $tempSelect = `ls -sl`;
+    select "Dis_Cam";
+    select -add $tempSelect;
+    matchTransform -pos;
+    setAttr Dis_Cam.ty 50;
+    
+    
+    //선택한 위치로 카메라를 가져옵니다.
+
+       
+}
+proc setupAO(){
+    string $selObjTemp[1]=`ls -sl`;
+    nodeEdCreateNodeCommand "RedshiftMatteShadowCatcher";
+    string $selNodeTemp[1]=`ls -sl`;
+    rename ($selNodeTemp[0]) "CustumedRedshiftMatteShadowCatcher" ;
+    setAttr "CustumedRedshiftMatteShadowCatcher.catch_shadows" 0;
+    setAttr "CustumedRedshiftMatteShadowCatcher.use_dot_nl" 0;
+    editRenderLayerAdjustment "CustumedRedshiftMatteShadowCatcher.ao_samples";
+    setAttr "CustumedRedshiftMatteShadowCatcher.ao_samples" 512;
+    editRenderLayerAdjustment "CustumedRedshiftMatteShadowCatcher.ao_distance";
+    setAttr "CustumedRedshiftMatteShadowCatcher.ao_distance" 2;
+    setAttr "CustumedRedshiftMatteShadowCatcher.ao_on" 1;
+
+    select $selObjTemp[0];
+    hyperShade -assign CustumedRedshiftMatteShadowCatcher;
+}
+proc exportCam(){
+    select "Dis_Cam";
+    ExportSelection;
+}
+proc import_Cam()
+{
+    Import;
+}
+
+
+
+
+
+
+
+//이 함수는 정우승 차장님의 멜을 차용한것입니다. 20191031
+//////////////////////Creator - 정우승 mallori@nate.com/////////////////////
+
+global proc Displacement_CamProjSet_RS(){
+
+////////////////Connect_Displacement_Geo_Options////////////////////
+    string $currentSel[] = `ls -sl` ;
+    PickWalkDown;
+    string $currentSelshape[] = `ls -sl` ;
+    PickWalkUp;
+
+////////////////NodeCreate_Work////////////////////
+//createRenderNodeCB -as2DTexture "" file "";
+    shadingNode -asTexture -isColorManaged file;
+
+    string $fileA[] = `ls -sl` ;
+    setAttr ($fileA[0]+".useFrameExtension") 1;
+    setAttr ($fileA[0]+".alphaIsLuminance") 0;
+    setAttr ($fileA[0]+".filterType") 1;
+//setAttr ($fileA[0]+".miUseEllipticalFilter") 1;
+//setAttr ($fileA[0]+".miConvertToOptim") 0;
+    setAttr ($fileA[0]+".defaultColor") -type double3 0 0 0 ;
+    setAttr -type "string" ($fileA[0]+".colorSpace") "Raw";
+//AEpropagateMenuCB -forward "" "Dismap_A";
+
+    shadingNode -asUtility place2dTexture;
+    string $fileA_Paced2d[] = `ls -sl` ;
+    setAttr ($fileA_Paced2d[0]+".wrapU") 0;
+    setAttr ($fileA_Paced2d[0]+".wrapV") 0;
+
+    connectAttr -f ($fileA_Paced2d[0]+".coverage") ($fileA[0]+".coverage");
+    connectAttr -f ($fileA_Paced2d[0]+".translateFrame") ($fileA[0]+".translateFrame");
+    connectAttr -f ($fileA_Paced2d[0]+".rotateFrame") ($fileA[0]+".rotateFrame");
+    connectAttr -f ($fileA_Paced2d[0]+".mirrorU") ($fileA[0]+".mirrorU");
+    connectAttr -f ($fileA_Paced2d[0]+".mirrorV") ($fileA[0]+".mirrorV");
+    connectAttr -f ($fileA_Paced2d[0]+".stagger") ($fileA[0]+".stagger");
+    connectAttr -f ($fileA_Paced2d[0]+".wrapU") ($fileA[0]+".wrapU");
+    connectAttr -f ($fileA_Paced2d[0]+".wrapV") ($fileA[0]+".wrapV");
+    connectAttr -f ($fileA_Paced2d[0]+".repeatUV") ($fileA[0]+".repeatUV");
+    connectAttr -f ($fileA_Paced2d[0]+".offset") ($fileA[0]+".offset");
+    connectAttr -f ($fileA_Paced2d[0]+".rotateUV") ($fileA[0]+".rotateUV");
+    connectAttr -f ($fileA_Paced2d[0]+".noiseUV") ($fileA[0]+".noiseUV");
+    connectAttr -f ($fileA_Paced2d[0]+".vertexUvOne") ($fileA[0]+".vertexUvOne");
+    connectAttr -f ($fileA_Paced2d[0]+".vertexUvTwo") ($fileA[0]+".vertexUvTwo");
+    connectAttr -f ($fileA_Paced2d[0]+".vertexUvThree") ($fileA[0]+".vertexUvThree");
+    connectAttr -f ($fileA_Paced2d[0]+".vertexCameraOne") ($fileA[0]+".vertexCameraOne");
+    connectAttr ($fileA_Paced2d[0]+".outUV") ($fileA[0]+".uv");
+    connectAttr ($fileA_Paced2d[0]+".outUvFilterSize") ($fileA[0]+".uvFilterSize");
+
+///////////////
+    shadingNode -asTexture projection;
+    string $projA[] = `ls -sl` ;
+    setAttr ($projA[0]+".projType") 8;
+    setAttr ($projA[0]+".fitType") 2;
+    setAttr ($projA[0]+".defaultColor") -type double3 0 0 0 ;
+
+    shadingNode -asUtility place3dTexture;
+    string $Tex3dA[] = `ls -sl` ;
+
+
+
+//createRenderNodeCB -as2DTexture "" file "";
+//string $fileB[] = `ls -sl` ;
+//setAttr ($fileB[0]+".useFrameExtension") 1;
+
+    createRenderNodeCB -asUtility "" rgbToHsv "";
+    string $RtoH[] = `ls -sl` ;
+
+    shadingNode -name "custumedRamp" -asTexture ramp;
+    string $remap_ramp[] = `ls -sl` ;
+    setAttr ($remap_ramp[0]+".defaultColor") -type double3 0 0 0 ;
+
+    shadingNode -name "custumedLayerdTex" -asTexture layeredTexture;
+    string $lyTex[] = `ls -sl` ;
+
+//createRenderNodeCB -as2DTexture "" checker "";
+    shadingNode -asTexture checker;
+
+    string $checkers[] = `ls -sl` ;
+    setAttr ($checkers[0]+".defaultColor") -type double3 0 0 0 ;
+
+    shadingNode -asUtility place2dTexture;
+    string $checker_Paced2d[] = `ls -sl` ;
+    setAttr ($checker_Paced2d[0]+".repeatU") 1;
+    setAttr ($checker_Paced2d[0]+".repeatV") 1;
+    setAttr ($checker_Paced2d[0]+".wrapU") 0;
+    setAttr ($checker_Paced2d[0]+".wrapV") 0;
+
+    connectAttr ($checker_Paced2d[0]+".outUV") ($checkers[0]+".uv"); 
+    connectAttr ($checker_Paced2d[0]+".outUvFilterSize") ($checkers[0]+".uvFilterSize");
+
+    shadingNode -name "custumedDisplacementNode" -asUtility RedshiftDisplacement ;
+    setAttr "custumedDisplacementNode.scale" 0.05;
+    string $disUtil[] = `ls -sl` ;
+    
+
+////////////////Connect_Work////////////////////
+//connectAttr -f ($fileA[0]+".fileTextureName") ($fileB[0]+".fileTextureName");
+    connectAttr -f ($Tex3dA[0]+".worldInverseMatrix[0]") ($projA[0]+".placementMatrix");
+    connectAttr -f ($projA[0]+".outColor") ($RtoH[0]+".inRgb");
+    connectAttr -f ($fileA[0]+".outAlpha") ($projA[0]+".image.imageR");
+    connectAttr -f ($fileA[0]+".outAlpha") ($projA[0]+".image.imageG");
+    connectAttr -f ($fileA[0]+".outAlpha") ($projA[0]+".image.imageB");
+
+
+    connectAttr -f ($RtoH[0]+".outHsvH") ($remap_ramp[0]+".uCoord");
+    connectAttr -f ($RtoH[0]+".outHsvV") ($remap_ramp[0]+".vCoord");
+
+    connectAttr -f ($remap_ramp[0]+".outColorR") ($lyTex[0]+".inputs[1].alpha");
+    connectAttr -f ($projA[0]+".outColor.outColorG") ($lyTex[0]+".inputs[0].alpha");
+
+    setAttr ($lyTex[0]+".inputs[2].alpha") 1;
+
+    setAttr ($lyTex[0]+".inputs[2].color") -type double3 0.860 0.860 0.860 ;
+    setAttr ($lyTex[0]+".inputs[1].color") -type double3 1.560 1.560 1.560 ;
+    setAttr ($lyTex[0]+".inputs[0].color") -type double3 -0.120 -0.120 -0.120 ;
+
+    setAttr ($lyTex[0]+".inputs[0].blendMode") 1;
+    setAttr ($lyTex[0]+".inputs[1].blendMode") 1;
+    setAttr ($lyTex[0]+".inputs[2].blendMode") 0;
+
+    setAttr ($lyTex[0]+".alphaIsLuminance") 1;
+
+    setAttr ($remap_ramp[0]+".colorEntryList[0].color") -type double3 0 0 0 ;
+    setAttr ($remap_ramp[0]+".colorEntryList[1].color") -type double3 1 1 1 ;
+
+    setAttr ($remap_ramp[0]+".colorEntryList[1].position") 0.066;
+    removeMultiInstance -break true ($remap_ramp[0]+".colorEntryList[2]");
+
+    connectAttr -f ($lyTex[0]+".outColor") ($checkers[0]+".color1");
+    connectAttr -f ($lyTex[0]+".outColor") ($checkers[0]+".color2");
+    setAttr ($checkers[0]+".alphaIsLuminance") 1;
+    setAttr ($checkers[0]+".contrast") 0;
+
+    connectAttr -f ($checkers[0]+".outAlpha") ($disUtil[0]+".texMapR");
+    connectAttr -f ($checkers[0]+".outAlpha") ($disUtil[0]+".texMapG");
+    connectAttr -f ($checkers[0]+".outAlpha") ($disUtil[0]+".texMapB");
+    rename ($fileA[0]) "Dismap_A" ;
+//rename ($fileB[0]) "Dismap_B" ;
+    select -r ($checkers[0]);
+//여기 아래는 다른 함수 합친것
+    string $dispmap[] = `ls -sl` ;
+    expression -s ($dispmap[0]+".alphaOffset = "+ "("+$dispmap[0]+".alphaGain)*-.5;")  -o checker2 -n "DisplacementExp" -ae 1 -uc all ;
+//자동으로 카메라 연결
+    connectAttr -f Dis_CamShape.message projection1.linkedCamera;
+    
+    
+    
+
+}
+proc getReadyEarth(){
+    string $selectEarth[1]=`ls -sl`;
+    editRenderLayerAdjustment (($selectEarth[0])+".rsEnableSubdivision");
+    setAttr (($selectEarth[0])+".rsEnableSubdivision") 1;
+    editRenderLayerAdjustment (($selectEarth[0])+".rsEnableDisplacement");
+    setAttr (($selectEarth[0])+".rsEnableDisplacement") 1;
+}
+proc hyperLink(){
+    launch -dir "//192.168.200.176/Team_Work/Lighting_Render/Lighting_RnD/scripts/Displacement_FootPrint_Redsift/Displacement footPrint_Redshift.docx";
+}
+
+workSiyeon();
