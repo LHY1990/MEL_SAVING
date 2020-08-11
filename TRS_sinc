@@ -1,0 +1,36 @@
+//처음 선택한 오브젝트의 위치, 방향 값을 두번째 선택한 오브젝트에 옮겨줍니다. 현재6채널 지원중
+
+window -width 150;
+columnLayout -adjustableColumn true;
+    button -label "\n값을 가져올 오브젝트 선택후 클릭\n" -bgc 1 .7 .7 -command "bringData";
+    button -label "\n값을 줄 오브젝트 선택 후 클릭\n" -bgc .7 1 .7 -command "setData";
+    
+showWindow;
+
+global float $data[6];
+
+
+proc bringData(){
+    string $selected[1]=`ls -sl`;
+    global float $data[6];
+	$data[0]=`getAttr ($selected[0]+".tx")`;
+	$data[1]=`getAttr ($selected[0]+".ty")`;
+	$data[2]=`getAttr ($selected[0]+".tz")`;
+	$data[3]=`getAttr ($selected[0]+".rx")`;
+	$data[4]=`getAttr ($selected[0]+".ry")`;
+	$data[5]=`getAttr ($selected[0]+".rz")`;
+
+}
+proc setData(){
+    string $putOne[1]=`ls -sl`;
+    global float $data[6];
+    
+    setAttr ($putOne[0]+".tx") $data[0];
+    setAttr ($putOne[1]+".ty") $data[1];
+    setAttr ($putOne[2]+".tz") $data[2];
+    setAttr ($putOne[3]+".rx") $data[3];
+    setAttr ($putOne[4]+".ry") $data[4];
+    setAttr ($putOne[5]+".rz") $data[5];
+
+}
+  
