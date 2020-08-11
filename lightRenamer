@@ -1,0 +1,207 @@
+//최종수정시간 2019/12/18/ 12:00
+
+global string $fullName;
+global string $lightCategory;
+global string $asset;
+global string $temptext;
+global string $custumedName;
+global string $fromWhere;
+global string $toWhere;
+
+global proc LitNameReplaceWindow(){
+    global string $temptext;
+
+    
+    if (`window -ex lightNameWindow`){
+        deleteUI -window lightNameWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    window -title "Lit name editor like WETA DIGITAL" lightNameWindow;
+    
+    rowColumnLayout -numberOfColumns 2   ;
+    
+    text -label "\n기본 입력값 \n" -bgc .9 .9 .9 -al "right";
+    text -label "\n : Lgt\n" -bgc .9 .9 .9 -al "left";
+    
+    text -label "Source/Light Category" -bgc .8 1 .8;
+    text -label "\n   Asset category         " -bgc .2 .5 1;
+    separator -style "none";
+    separator -style "none";
+    separator -style "none";
+    separator -style "none";
+    text -label "\nnatural/pratical\n" -bgc .5 1 .5;
+    text -label "/name\n" -bgc .2 .5 1;
+    
+    button -label "SUN"  -c _sun;
+    button -label "ALL" -bgc .6 .6 .6 -c _all ;
+    button -label "SKY" -c _sky;
+    button -label "SET" -bgc .6 .6 .6 -c _set;
+    button -label "LAMP" -c _lamp;
+    button -label "CHR" -bgc .6 .6 .6 -c _chr;
+    button -label "WIDNOW" -c _window;
+    button -label "PROP" -bgc .6 .6 .6 -c _prop;
+    button -label "SCREEN" -c _screen;
+    text -label "Custumed" ;
+    button -label "CEILING" -c _ceiling;
+    ///////////////////////////////////////////////////////////////////////
+    $custumedName=`textFieldGrp tempID`;
+    button -label "WALL" -c _wall;
+    button -label "confirm Custom" -bgc .6 .6 .6 -command _custumed;
+   
+    text -label "\nDramatic\n" -bgc .5 1 .5;
+    text -label "set From and To" -bgc 1 .6 .6 ;
+    button -label "KEY" -c _key;
+    text -label "FROM";
+    button -label "RIM" -c _rim;
+    $custumedName=`textFieldGrp fromID`;
+    button -label "BOUNCE" -c _bounce;
+    button -label "confirm From" -bgc .6 .6 .6 -command _from;
+    button -label "TOP" -c _top;
+    text -label "TO";
+    button -label "FILL" -c _fill;
+    $custumedName=`textFieldGrp toID`;
+    button -label "KICKER" -c _kicker;
+    button -label "confirm To" -bgc .6 .6 .6 -command _to;
+    button -label "\nreset All\n" -bgc .1 .1 .1 -command _reset;
+    button -label "\nSET NAME\n"-bgc 1 1 1 -c _rename;
+    
+    
+
+    showWindow lightNameWindow;
+    
+}
+LitNameReplaceWindow();
+
+proc _sun(){
+    global string $lightCategory;
+    
+    $lightCategory="sun";
+}
+proc _sky(){
+    global string $lightCategory;
+    
+    $lightCategory="sky";
+}
+proc _lamp(){
+    global string $lightCategory;
+    
+    $lightCategory="lamp";
+}
+proc _window(){
+    global string $lightCategory;
+    
+    $lightCategory="window";
+}
+proc _screen(){
+    global string $lightCategory;
+    
+    $lightCategory="screen";
+}
+proc _ceiling(){
+    global string $lightCategory;
+    
+    $lightCategory="ceiling";
+}
+proc _wall(){
+    global string $lightCategory;
+    
+    $lightCategory="wall";
+}
+///////////////////////////////////////
+proc _key(){
+    global string $lightCategory;
+    
+    $lightCategory="key";
+}
+proc _rim(){
+    global string $lightCategory;
+    
+    $lightCategory="rim";
+}
+proc _bounce(){
+    global string $lightCategory;
+    
+    $lightCategory="bounce";
+}
+proc _top(){
+    global string $lightCategory;
+    
+    $lightCategory="top";
+}
+proc _fill(){
+    global string $lightCategory;
+    
+    $lightCategory="fill";
+}
+proc _kicker(){
+    global string $lightCategory;
+    
+    $lightCategory="kecker";
+}
+proc _all(){
+    global string $asset;
+    
+    $asset="all";
+}
+proc _set(){
+    global string $asset;
+    
+    $asset="set";
+}
+proc _chr(){
+    global string $asset;
+    
+    $asset="chr";
+}
+proc _prop(){
+    global string $asset;
+    
+    $asset="prop";
+}
+proc _custumed(){
+    global string $asset;
+    global string $custumedName;
+    
+    $asset=`textFieldGrp -q -tx tempID`;
+    
+    
+}
+proc _from(){
+    global string $fromWhere;
+    
+    $fromWhere=`textFieldGrp -q -tx fromID`;
+    $fromWhere="From_"+$fromWhere+"_";
+}
+proc _to(){
+    global string $toWhere;
+    
+    $toWhere=`textFieldGrp -q -tx toID`;
+    $toWhere="To_"+$toWhere+"_";
+}
+
+proc _reset(){
+    global string $fullName;
+    global string $lightCategory;
+    global string $asset;
+    global string $temptext;
+    global string $custumedName;
+    global string $fromWhere;
+    global string $toWhere;
+    
+    
+    $fullName=$lightCategory=$asset=$fromWhere=$toWhere="";
+}
+
+
+proc _rename(){
+    
+    global string $fullName;
+    global string $lightCategory;
+    global string $asset;
+    global string $fromWhere;
+    global string $toWhere;
+    
+    $fullName=($fromWhere+$toWhere+"Lgt_"+$lightCategory+"_"+$asset+"_01");
+    string $temp[]=`ls -sl`;
+    rename $temp[0] $fullName;
+}
