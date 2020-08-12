@@ -1,3 +1,4 @@
+
 global proc subCount(){
     
 
@@ -32,128 +33,99 @@ global proc subCount(){
 }
 
 proc _visOn(){
+    SelectHierarchy;
     string $selected[]=`ls -sl`;
     string $temp;
     int $i=0;
-    for($temp in $selected ){
-        SelectHierarchy;
-
-        string $tempIn[]=`ls -sl`;
-        string $tempInTemp;
-        int $j=0;
-        for($tempInTemp in $tempIn){
-            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
-                editRenderLayerAdjustment ($tempIn[$j]+".rsEnableVisibilityOverrides");
-                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
-                setAttr ($tempIn[$j]+".rsPrimaryRayVisible") 1;
-            }
-            $j++;
-            
+    for($temp in $selected ){  
+        if(`objExists ($selected[$i]+".rsEnableVisibilityOverrides")`){
+            editRenderLayerAdjustment ($selected[$i]+".rsEnableVisibilityOverrides");
+            setAttr ($selected[$i]+".rsEnableVisibilityOverrides") 1;
+            setAttr ($selected[$i]+".rsPrimaryRayVisible") 1;
         }
-        clear $tempIn;
         $i++;
-
     }
     clear $selected;
-
 }
+
+
 proc _visOff(){
+    
+    SelectHierarchy;
     string $selected[]=`ls -sl`;
     string $temp;
     int $i=0;
-    for($temp in $selected ){
-        SelectHierarchy;
-
-        string $tempIn[]=`ls -sl`;
-        string $tempInTemp;
-        int $j=0;
-        for($tempInTemp in $tempIn){
-            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
-                editRenderLayerAdjustment ($tempIn[$j]+".rsEnableVisibilityOverrides");
-                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
-                setAttr ($tempIn[$j]+".rsPrimaryRayVisible") 0;
-            }
-            $j++;
-            
+    for($temp in $selected ){  
+        if(`objExists ($selected[$i]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment ($selected[$i]+".rsEnableVisibilityOverrides");
+                setAttr ($selected[$i]+".rsEnableVisibilityOverrides") 1;
+                setAttr ($selected[$i]+".rsPrimaryRayVisible") 0;
         }
-        clear $tempIn;
         $i++;
-
     }
-    clear $selected;
+    clear $selected; 
+   
 }
+
+
+
 proc _visRemove(){
+    
+    SelectHierarchy;
     string $selected[]=`ls -sl`;
     string $temp;
     int $i=0;
-    for($temp in $selected ){
-        SelectHierarchy;
-
-        string $tempIn[]=`ls -sl`;
-        string $tempInTemp;
-        int $j=0;
-        for($tempInTemp in $tempIn){
-            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
-                editRenderLayerAdjustment -remove ($tempIn[$j]+".rsEnableVisibilityOverrides");
-            }
-            $j++;
-            
+    for($temp in $selected ){  
+        if(`objExists ($selected[$i]+".rsEnableVisibilityOverrides")`){
+                editRenderLayerAdjustment -remove ($selected[$i]+".rsEnableVisibilityOverrides");
         }
-        clear $tempIn;
         $i++;
-
     }
-    clear $selected;
+    clear $selected;       
+    
+
 }
 
 
 proc _matteOn(){
+    
+    
+    SelectHierarchy;
     string $selected[]=`ls -sl`;
     string $temp;
     int $i=0;
-    
-    for($temp in $selected ){
-        SelectHierarchy;
-        string $tempIn[]=`ls -sl`;
-        string $tempInTemp;
-        int $j=0;
-        for($tempInTemp in $tempIn){
-            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
-                editRenderLayerAdjustment ($tempIn[$j]+".rsMatteEnable");
-                setAttr ($tempIn[$j]+".rsMatteEnable") 1;
-                setAttr ($tempIn[$j]+".rsMatteShowBackground") 0;
-                setAttr ($tempIn[$j]+".rsMatteAlpha") 0;
-            }
-            $j++;
-            
+    for($temp in $selected ){  
+        if(`objExists ($selected[$i]+".rsEnableVisibilityOverrides")`){
+            editRenderLayerAdjustment ($selected[$i]+".rsMatteEnable");
+            setAttr ($selected[$i]+".rsMatteEnable") 1;
+            setAttr ($selected[$i]+".rsMatteShowBackground") 0;
+            setAttr ($selected[$i]+".rsMatteAlpha") 0;
         }
-        
         $i++;
     }
+    clear $selected;       
     
 }
+
+
+
 proc _matteOff(){
+    
+    
+    SelectHierarchy;
     string $selected[]=`ls -sl`;
     string $temp;
     int $i=0;
-    
-    for($temp in $selected ){
-        SelectHierarchy;
-        string $tempIn[]=`ls -sl`;
-        string $tempInTemp;
-        int $j=0;
-        for($tempInTemp in $tempIn){
-            if(`objExists ($tempIn[$j]+".rsEnableVisibilityOverrides")`){
-                editRenderLayerAdjustment ($tempIn[$j]+".rsMatteEnable");
-                setAttr ($tempIn[$j]+".rsEnableVisibilityOverrides") 1;
-                setAttr ($tempIn[$j]+".rsMatteEnable") 0;
-            }
-            $j++;
-            
+    for($temp in $selected ){  
+        if(`objExists ($selected[$i]+".rsEnableVisibilityOverrides")`){
+            editRenderLayerAdjustment ($selected[$i]+".rsMatteEnable");
+            setAttr ($selected[$i]+".rsEnableVisibilityOverrides") 1;
+            setAttr ($selected[$i]+".rsMatteEnable") 0;
         }
-        
         $i++;
     }
+    clear $selected;      
+    
     
 }
 
@@ -172,7 +144,7 @@ proc _setLocal(){
             setAttr ($selected[$i]+".rsEnableSubdivision") 1;
             setAttr ($selected[$i]+".rsMinTessellationLength") $edgeLength;  
             setAttr ($selected[$i]+".rsMaxTessellationSubdivs") $subdivs;
-            //displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
+            displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
        }
 
             
@@ -199,7 +171,7 @@ proc _setAll(){
             setAttr ($tempSelectmesh[$i]+".rsEnableSubdivision") 1;
             setAttr ($tempSelectmesh[$i]+".rsMinTessellationLength") $edgeLength;  
             setAttr ($tempSelectmesh[$i]+".rsMaxTessellationSubdivs") $subdivs;
-            //displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
+            displaySmoothness -divisionsU 0 -divisionsV 0 -pointsWire 4 -pointsShaded 1 -polygonObject 1;
 
         
         
