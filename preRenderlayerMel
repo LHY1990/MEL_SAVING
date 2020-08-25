@@ -1,0 +1,5 @@
+string $preRenderLayerMEL="int $now=`currentTime -query`;";
+$preRenderLayerMEL=$preRenderLayerMEL+"int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;";
+$preRenderLayerMEL=$preRenderLayerMEL+"if($now==$startFrame){setAttr \"redshiftOptions.motionBlurEnable\" 0;}";
+$preRenderLayerMEL=$preRenderLayerMEL+"else{setAttr \"redshiftOptions.motionBlurEnable\" 1;}";
+setAttr -type "string" "redshiftOptions.preRenderFrameMel" $preRenderLayerMEL;
