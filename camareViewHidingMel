@@ -1,4 +1,6 @@
-//please load helloworld in cpp
+//load pulgin helloworld
+//gns3163@naver.com
+//gnsdud3163    kakao ID
 
 global proc cameraViewSelection(){
     
@@ -25,12 +27,12 @@ global proc cameraViewSelection(){
 proc selectSingleFrame(){
     
 
- 
+    select -clear ;
     
     
     modelEditor -e -allObjects 0 modelPanel1;updateShowMenu MainPane|viewPanes|modelPanel1|modelPanel1|menu19 modelPanel1 "modelPanel1" "Playblast Display";
     modelEditor -e -polymeshes true modelPanel1;modelEditor -e -hos true modelPanel1;//모델링만 보이게 설정
-    select -clear ;
+    
     select -all;
     helloworld;
     if(`objExists  outOfCamera.shading`){}
@@ -57,7 +59,7 @@ proc selectSingleFrame(){
 //multiframejob
 proc selectAllFrame(){
     
-
+    select -clear ;
     
     
     //만약에 레이어가 없으면 만듦
@@ -70,7 +72,7 @@ proc selectAllFrame(){
     int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
     modelEditor -e -allObjects 0 modelPanel1;updateShowMenu MainPane|viewPanes|modelPanel1|modelPanel1|menu19 modelPanel1 "modelPanel1" "Playblast Display";
     modelEditor -e -polymeshes true modelPanel1;modelEditor -e -hos true modelPanel1;//모델링만 보이게 설정
-    select -clear ;
+    
     select -all;
     
     
