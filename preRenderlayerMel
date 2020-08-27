@@ -3,3 +3,4 @@ $preRenderLayerMEL=$preRenderLayerMEL+"int $startFrame=`timeField -q -v RangeSli
 $preRenderLayerMEL=$preRenderLayerMEL+"if($now==$startFrame){setAttr \"redshiftOptions.motionBlurEnable\" 0;}";
 $preRenderLayerMEL=$preRenderLayerMEL+"else{setAttr \"redshiftOptions.motionBlurEnable\" 1;}";
 setAttr -type "string" "redshiftOptions.preRenderFrameMel" $preRenderLayerMEL;
+setAttr -type "string" "redshiftOptions.preRenderMel" $preRenderLayerMEL;
