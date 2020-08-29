@@ -14,9 +14,9 @@ global proc cameraViewSelection(){
     
     columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
     
-    
-    button -label "\n싱글 프레임\n"  -bgc .8 .5 .5 -command selectSingleFrame;
-    button -label "\n멀티 프레임\n" -bgc .5 .8 .5 -command selectAllFrame;
+    text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
+    button -label "\nremove single frame \n"  -bgc .8 .5 .5 -command selectSingleFrame;
+    button -label "\nremove multiframe\n" -bgc .5 .8 .5 -command selectAllFrame;
 
 
     showWindow cameraViewSelection;
@@ -27,14 +27,14 @@ global proc cameraViewSelection(){
 proc selectSingleFrame(){
     
 
-    select -clear ;
+     
     
     
-    modelEditor -e -allObjects 0 modelPanel1;updateShowMenu MainPane|viewPanes|modelPanel1|modelPanel1|menu19 modelPanel1 "modelPanel1" "Playblast Display";
-    modelEditor -e -polymeshes true modelPanel1;modelEditor -e -hos true modelPanel1;//모델링만 보이게 설정
-    
-    select -all;
+    string $selection[] = `ls `;
+    string $polyGons[] = `filterExpand -sm 12 $selection`;
+    select -r $polyGons;
     helloworld;
+    
     if(`objExists  outOfCamera.shading`){}
     else{
         
@@ -70,12 +70,11 @@ proc selectAllFrame(){
         
     int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
     int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
-    modelEditor -e -allObjects 0 modelPanel1;updateShowMenu MainPane|viewPanes|modelPanel1|modelPanel1|menu19 modelPanel1 "modelPanel1" "Playblast Display";
-    modelEditor -e -polymeshes true modelPanel1;modelEditor -e -hos true modelPanel1;//모델링만 보이게 설정
-    
-    select -all;
     
     
+    string $selection[] = `ls `;
+    string $polyGons[] = `filterExpand -sm 12 $selection`;
+    select -r $polyGons;
     
     for(;$firstFrame<=$lastFrame;$firstFrame++){
         currentTime $firstFrame;
