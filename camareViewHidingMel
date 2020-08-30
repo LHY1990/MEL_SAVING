@@ -1,39 +1,52 @@
-//load pulgin helloworld
-//gns3163@naver.com
-//gnsdud3163    kakao ID
+//if you need feedback, call to gns3163@naver.com
+//or
+//gnsdud3163 kakao talk ID
 
-global proc cameraViewSelection(){
+
+
+unloadPlugin "cameraViewAPI.mll";
+unloadPlugin "outOfcameraAPI.mll";
+loadPlugin "C:/Users/user/Documents/maya/2019/scripts/cameraViewAPI.mll";
+loadPlugin "C:/Users/user/Documents/maya/2019/scripts/outOfcameraAPI.mll";
+
+
+global proc cameraViewSelectionWindow(){
     
 
     
-    if (`window -ex cameraViewSelection`){
-        deleteUI -window cameraViewSelection;
+    if (`window -ex cameraViewSelectionWindow`){
+        deleteUI -window cameraViewSelectionWindow;
     }
     
-    window -title "기본 화면 셋업" cameraViewSelection;
+    window -title "기본 화면 셋업" cameraViewSelectionWindow;
     
     columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
     
     text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
-    button -label "\nremove single frame \n"  -bgc .8 .5 .5 -command selectSingleFrame;
-    button -label "\nremove multiframe\n" -bgc .5 .8 .5 -command selectAllFrame;
+    button -label "\nSet Single Frame \n"  -bgc .8 .5 .5 -command selectSingleFrame;
+    button -label "\nSet Multiframe\n" -bgc .5 .8 .5 -command selectAllFrame;
+    //button -label "\nuse depth single\n" -bgc .5 .5 .8 -command useDepthSingle;
+    //button -label "\nuse depth multi\n" -bgc .5 .6 .6 -command useDepthMulti;
+    
+    button -label "\nReset\n" -bgc .34 .34 .34 -command reset;
 
 
-    showWindow cameraViewSelection;
+    showWindow cameraViewSelectionWindow;
     
 }
 
 
 proc selectSingleFrame(){
     
-
-     
-    
+    modelEditor -e -allObjects 0 modelPanel1;modelEditor -e -polymeshes true modelPanel1;
+    modelEditor -e -allObjects 0 modelPanel2;modelEditor -e -polymeshes true modelPanel2;
+    modelEditor -e -allObjects 0 modelPanel3;modelEditor -e -polymeshes true modelPanel3;
+    modelEditor -e -allObjects 0 modelPanel4;modelEditor -e -polymeshes true modelPanel4;
     
     string $selection[] = `ls `;
     string $polyGons[] = `filterExpand -sm 12 $selection`;
     select -r $polyGons;
-    helloworld;
+    outOfcameraViewSelection;
     
     if(`objExists  outOfCamera.shading`){}
     else{
@@ -44,21 +57,21 @@ proc selectSingleFrame(){
     }
     setAttr outOfCamera.visibility 0;
     layerEditorAddObjects outOfCamera;
-    modelEditor -e -polymeshes true modelPanel4;
+    
     select -clear ;
     //single frame job
-    
-    
-    
+    useDepthSingle();
+
 }
-
-
-
-
 
 //multiframejob
 proc selectAllFrame(){
     
+    modelEditor -e -allObjects 0 modelPanel1;modelEditor -e -polymeshes true modelPanel1;
+    modelEditor -e -allObjects 0 modelPanel2;modelEditor -e -polymeshes true modelPanel2;
+    modelEditor -e -allObjects 0 modelPanel3;modelEditor -e -polymeshes true modelPanel3;
+    modelEditor -e -allObjects 0 modelPanel4;modelEditor -e -polymeshes true modelPanel4;
+        
     select -clear ;
     
     
@@ -78,24 +91,68 @@ proc selectAllFrame(){
     
     for(;$firstFrame<=$lastFrame;$firstFrame++){
         currentTime $firstFrame;
-        helloworld;
+        outOfcameraViewSelection;
         
     }
     
     layerEditorAddObjects outOfCamera;
     setAttr outOfCamera.visibility 0;
     
-    
-    
-    
-    
-    
-    modelEditor -e -polymeshes true modelPanel4;
-    
+ 
     select -clear ;
-
+    useDepthMulti();
 
 
 }
+proc useDepthSingle(){
+    //string $panel=`getPanel -withFocus `;//현재 패널가져오기
+    //print $panel;
+    //string $cameraTemp;
+    //$cameraTemp = `modelEditor -q -camera $panel`;//현재 패널을 보는 카메라 가져오기
+    //print $cameraTemp;
+    selectPref -useDepth true;
+    cameraViewSelection;
+    
+    
+    
+    selectPref -useDepth false;
+    
+    if(`objExists  onCamera.shading`){}
+    else{
+        
+        createDisplayLayer -n "onCamera";
+        
+        
+    }
+    
+    layerEditorAddObjects onCamera;
+}
+proc useDepthMulti(){
+        
+    int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+       
+        
+    for(;$firstFrame<=$lastFrame;$firstFrame++){
+        currentTime $firstFrame;
+        useDepthSingle();
+        
+    }     
+        
+        
+        
+        
+}
 
-cameraViewSelection();
+proc reset(){
+    if(`objExists  onCamera.shading`){
+        delete onCamera;
+    }
+    if(`objExists  outOfCamera.shading`){
+        delete outOfCamera;
+    }
+}
+
+
+
+cameraViewSelectionWindow();
