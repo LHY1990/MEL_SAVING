@@ -3,12 +3,17 @@
 //gnsdud3163 kakao talk ID
 
 
-
 unloadPlugin "cameraViewAPI.mll";
 unloadPlugin "outOfcameraAPI.mll";
 loadPlugin "C:/Users/user/Documents/maya/2019/scripts/cameraViewAPI.mll";
 loadPlugin "C:/Users/user/Documents/maya/2019/scripts/outOfcameraAPI.mll";
-
+string $currentCAMset=`lookThru -q`;
+setAttr ($currentCAMset+".displayResolution") 1;
+setAttr ($currentCAMset+".displayGateMask") 1;
+modelEditor -e -polymeshes true modelPanel1;
+modelEditor -e -polymeshes true modelPanel2;
+modelEditor -e -polymeshes true modelPanel3;
+modelEditor -e -polymeshes true modelPanel4;
 
 global proc cameraViewSelectionWindow(){
     
@@ -23,14 +28,23 @@ global proc cameraViewSelectionWindow(){
     columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
     
     text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
-    button -label "\nSet Single Frame \n"  -bgc .8 .5 .5 -command selectSingleFrame;
-    button -label "\nSet Multiframe\n" -bgc .5 .8 .5 -command selectAllFrame;
+    button -label "\nSet Single Frame \n"  -bgc .5 .8 .6 -command selectSingleFrame;
+    button -label "\nSet Multiframe\n" -bgc .8 .6 .8 -command selectAllFrame;
     //button -label "\nuse depth single\n" -bgc .5 .5 .8 -command useDepthSingle;
     //button -label "\nuse depth multi\n" -bgc .5 .6 .6 -command useDepthMulti;
     
-    button -label "\nReset\n" -bgc .34 .34 .34 -command reset;
-
-
+    button -label "Reset" -bgc .6 .6 .6 -command reset;
+    
+    separator -style "none" -h 30;
+    ///////////////////////////////////////////////////////////////////////////////////
+    string $currentCAM=`lookThru -q`;
+    setAttr ($currentCAM+".displayResolution") 1;
+    setAttr ($currentCAM+".displayGateMask") 1;
+    attrFieldSliderGrp -label "카메라범위" -min 1.0 -max 2 -at ($currentCAM+".overscan") ;
+    
+    button -label "increase range of camera"  -command rangeAdd;
+    button -label "decrease range of camera"  -command rangeSub;
+    
     showWindow cameraViewSelectionWindow;
     
 }
@@ -152,7 +166,20 @@ proc reset(){
         delete outOfCamera;
     }
 }
-
+proc rangeAdd(){
+    string $CAM=`lookThru -q`;
+    float $tempRange=`getAttr ($CAM+".overscan")`;
+    $tempRange=$tempRange+0.05;
+    setAttr ($CAM+".overscan") $tempRange;
+    
+}
+proc rangeSub(){
+    string $CAM=`lookThru -q`;
+    float $tempRange=`getAttr ($CAM+".overscan")`;
+    $tempRange=$tempRange-0.05;
+    setAttr ($CAM+".overscan") $tempRange;
+    
+}
 
 
 cameraViewSelectionWindow();
