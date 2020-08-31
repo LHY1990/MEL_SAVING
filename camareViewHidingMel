@@ -2,7 +2,6 @@
 //or
 //gnsdud3163 kakao talk ID
 
-
 unloadPlugin "cameraViewAPI.mll";
 unloadPlugin "outOfcameraAPI.mll";
 loadPlugin "C:/Users/hy_lee/Documents/maya/2019/scripts/cameraViewAPI.mll";
@@ -163,20 +162,46 @@ proc useDepthMulti(){
         
     int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
     int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
-       
+    
+    if(`objExists  onCamera.shading`){}
+    else{
+        
+        createDisplayLayer -n "onCamera";
+            
+    }
+    
         
     for(;$firstFrame<=$lastFrame;$firstFrame++){
         currentTime $firstFrame;
-        useDepthSingle();
+        
+        selectPref -useDepth true;
+        cameraViewSelection;
+        selectPref -useDepth false;
         
     }     
-        
+    layerEditorAddObjects onCamera;    
         
         
         
 }
 
 proc reset(){
+    modelEditor -e -allObjects 0 modelPanel1;
+    modelEditor -e -allObjects 0 modelPanel2;
+    modelEditor -e -allObjects 0 modelPanel3;
+    modelEditor -e -allObjects 0 modelPanel4;
+    
+    select -clear;
+    
+    modelEditor -e -polymeshes true modelPanel1;
+    modelEditor -e -polymeshes true modelPanel2;
+    modelEditor -e -polymeshes true modelPanel3;
+    modelEditor -e -polymeshes true modelPanel4;
+    
+    
+    
+    
+    
     if(`objExists  onCamera.shading`){
         delete onCamera;
     }
