@@ -15,8 +15,7 @@ modelEditor -e -polymeshes true modelPanel3;
 modelEditor -e -polymeshes true modelPanel4;
 
 global proc cameraViewSelectionWindow(){
-    
-
+    string $currentCAMset=`lookThru -q`;
     
     if (`window -ex cameraViewSelectionWindow`){
         deleteUI -window cameraViewSelectionWindow;
@@ -27,6 +26,8 @@ global proc cameraViewSelectionWindow(){
     columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
     
     text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
+    
+    text - label ("현재 카메라 : "+$currentCAMset+"\n") -font "boldLabelFont" -al "left";
     button -label "\nSet Single Frame \n"  -bgc .5 .8 .6 -command selectSingleFrame;
     button -label "\nSet Multiframe\n" -bgc .8 .6 .8 -command selectAllFrame;
     //button -label "\nuse depth single\n" -bgc .5 .5 .8 -command useDepthSingle;
