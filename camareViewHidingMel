@@ -27,7 +27,7 @@ global proc cameraViewSelectionWindow(){
     
     text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
     
-    text - label ("현재 카메라 : "+$currentCAMset+"\n") -font "boldLabelFont" -al "left";
+    //text - label ("현재 카메라 : "+$currentCAMset+"\n") -font "boldLabelFont" -al "left";
     button -label "\nSet Single Frame \n"  -bgc .5 .8 .6 -command selectSingleFrame;
     button -label "\nSet Multiframe\n" -bgc .8 .6 .8 -command selectAllFrame;
     //button -label "\nuse depth single\n" -bgc .5 .5 .8 -command useDepthSingle;
@@ -51,88 +51,101 @@ global proc cameraViewSelectionWindow(){
 
 
 proc selectSingleFrame(){
-    
-    modelEditor -e -allObjects 0 modelPanel1;
-    modelEditor -e -allObjects 0 modelPanel2;
-    modelEditor -e -allObjects 0 modelPanel3;
-    modelEditor -e -allObjects 0 modelPanel4;
-    
-    string $selection[] = `ls `;
-    string $polyGons[] = `filterExpand -sm 12 $selection`;
-    select -r $polyGons;
-    modelEditor -e -polymeshes true modelPanel1;
-    modelEditor -e -polymeshes true modelPanel2;
-    modelEditor -e -polymeshes true modelPanel3;
-    modelEditor -e -polymeshes true modelPanel4;
-    outOfcameraViewSelection;
-    
-    if(`objExists  outOfCamera.shading`){
-        setAttr outOfCamera.visibility 0;
+    string $currentcam1=`lookThru -q`;
+    string $selectedButton =`confirmDialog -title "confirm your camera" -message ("카메라를 확인해 주세요"+"\n\n"+$currentcam1)  -button "Yes" -button "No" -defaultButton "Yes" -cancelButton "No" -dismissString "No"`;
+    if($selectedButton=="Yes"){
+        modelEditor -e -allObjects 0 modelPanel1;
+        modelEditor -e -allObjects 0 modelPanel2;
+        modelEditor -e -allObjects 0 modelPanel3;
+        modelEditor -e -allObjects 0 modelPanel4;
+        
+        string $selection[] = `ls `;
+        string $polyGons[] = `filterExpand -sm 12 $selection`;
+        select -r $polyGons;
+        modelEditor -e -polymeshes true modelPanel1;
+        modelEditor -e -polymeshes true modelPanel2;
+        modelEditor -e -polymeshes true modelPanel3;
+        modelEditor -e -polymeshes true modelPanel4;
+        outOfcameraViewSelection;
+        
+        if(`objExists  outOfCamera.shading`){
+            setAttr outOfCamera.visibility 0;
+        }
+        else{
+            
+            createDisplayLayer -n "outOfCamera";
+            setAttr outOfCamera.visibility 0;
+            
+            
+        }
+        //setAttr outOfCamera.visibility 0;
+        layerEditorAddObjects outOfCamera;
+        
+        select -clear ;
+        //single frame job
+        useDepthSingle();
+
+        
+        
     }
-    else{
-        
-        createDisplayLayer -n "outOfCamera";
-        setAttr outOfCamera.visibility 0;
-        
-        
-    }
-    //setAttr outOfCamera.visibility 0;
-    layerEditorAddObjects outOfCamera;
-    
-    select -clear ;
-    //single frame job
-    useDepthSingle();
+    else{}
 
 }
 
 //multiframejob
 proc selectAllFrame(){
-    
-    modelEditor -e -allObjects 0 modelPanel1;
-    modelEditor -e -allObjects 0 modelPanel2;
-    modelEditor -e -allObjects 0 modelPanel3;
-    modelEditor -e -allObjects 0 modelPanel4;
+    string $currentcam2=`lookThru -q`;
+    string $selectedButton =`confirmDialog -title "confirm your camera" -message ("카메라를 확인해 주세요"+"\n\n"+$currentcam2) -button "Yes" -button "No" -defaultButton "Yes" -cancelButton "No" -dismissString "No"`;
+    if($selectedButton=="Yes"){
         
-    select -clear ;
-    
-    
-    //만약에 레이어가 없으면 만듦
-    if(`objExists  outOfCamera.shading`){
+        modelEditor -e -allObjects 0 modelPanel1;
+        modelEditor -e -allObjects 0 modelPanel2;
+        modelEditor -e -allObjects 0 modelPanel3;
+        modelEditor -e -allObjects 0 modelPanel4;
+            
+        select -clear ;
+        
+        
+        //만약에 레이어가 없으면 만듦
+        if(`objExists  outOfCamera.shading`){
+            setAttr outOfCamera.visibility 0;
+        }
+        else{
+            createDisplayLayer -n "outOfCamera";
+            setAttr outOfCamera.visibility 0;
+        }
+            
+        int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+        
+        
+        string $selection[] = `ls `;
+        string $polyGons[] = `filterExpand -sm 12 $selection`;
+        select -r $polyGons;
+        
+        modelEditor -e -polymeshes true modelPanel1;
+        modelEditor -e -polymeshes true modelPanel2;
+        modelEditor -e -polymeshes true modelPanel3;
+        modelEditor -e -polymeshes true modelPanel4;
+        
+        
+        
+        
+        for(;$firstFrame<=$lastFrame;$firstFrame++){
+            currentTime $firstFrame;
+            outOfcameraViewSelection;
+            
+        }
+        
+        layerEditorAddObjects outOfCamera;
         setAttr outOfCamera.visibility 0;
-    }
-    else{
-        createDisplayLayer -n "outOfCamera";
-        setAttr outOfCamera.visibility 0;
-    }
         
-    int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
-    int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
-    
-    
-    string $selection[] = `ls `;
-    string $polyGons[] = `filterExpand -sm 12 $selection`;
-    select -r $polyGons;
-    
-    modelEditor -e -polymeshes true modelPanel1;
-    modelEditor -e -polymeshes true modelPanel2;
-    modelEditor -e -polymeshes true modelPanel3;
-    modelEditor -e -polymeshes true modelPanel4;
-    
-    
-    
-    
-    for(;$firstFrame<=$lastFrame;$firstFrame++){
-        currentTime $firstFrame;
-        outOfcameraViewSelection;
+     
+        select -clear ;
+        useDepthMulti();
         
     }
-    
-    layerEditorAddObjects outOfCamera;
-    setAttr outOfCamera.visibility 0;
-    
- 
-    select -clear ;
-    useDepthMulti();
+    else{}
 
 
 }
