@@ -2,6 +2,10 @@
 //or
 //gnsdud3163 kakao talk ID
 
+//if you need feedback, call to gns3163@naver.com
+//or
+//gnsdud3163 kakao talk ID
+
 global int $transCheck=0;
 global int $rotateCheck=0;
 global int $scaleCheck=0;
@@ -23,12 +27,12 @@ global proc workSpace(){
     columnLayout -adjustableColumn 1;
     text  -label "*********************\nCheck the checkbox\n You need to match\n*********************";
     separator -style "none" -h 12; 
-    checkBox -label "Local / Translate"  -onc addingT -ofc resetT -cc isSame;
-    checkBox -label "Local / Rotate"     -onc addingR -ofc resetR -cc isSame;
-    checkBox -label "Local / Scale"      -onc addingS -ofc resetS -cc isSame;
-    checkBox -label "world / Translate"  -onc addingWT -ofc resetWT -cc isSame;
-    checkBox -label "world / Rotate"     -onc addingWR -ofc resetWR -cc isSame;
-    checkBox -label "world / Scale"      -onc addingWS -ofc resetWS -cc isSame;
+    checkBox -label "Local / Translate"  -onc addingT -ofc resetT -cc isSame button1;
+    checkBox -label "Local / Rotate"     -onc addingR -ofc resetR -cc isSame button2;
+    checkBox -label "Local / Scale"      -onc addingS -ofc resetS -cc isSame button3;
+    checkBox -label "world / Translate"  -onc addingWT -ofc resetWT -cc isSame button4;
+    checkBox -label "world / Rotate"     -onc addingWR -ofc resetWR -cc isSame button5;
+    checkBox -label "world / Scale"      -onc addingWS -ofc resetWS -cc isSame button6;
     separator -style "none" -h 12; 
     
     button -label "Click After \nSelect an object\n To get a value" -bgc .8 .6 .6 -command "bringData";
@@ -184,17 +188,42 @@ proc isSame(){
     global int $rotateCheckWorld;
     global int $scaleCheckWorld;
     
-    if(($transCheck==1) && ($transCheckWorld==1) ){
-        print "can't set both local and world value in once";
-        confirmDialog -title "warning" -message "Can't set both local and world value in once";
+    if($transCheck==1){
+        disable  button4;
     }
-    else if(($rotateCheck==1) && ($rotateCheckWorld==1)){
-        print "can't set both local and world value in once";
-        confirmDialog -title "warning" -message "Can't set both local and world value in once"; 
+    else if($transCheck==0){
+        disable -v 0 button4;
     }
-    else if(($scaleCheck==1) && ($scaleCheckWorld==1)){
-        print "can't set both local and world value in once";
-        confirmDialog -title "warning" -message "Can't set both local and world value in once"; 
+    if($rotateCheck==1){
+        disable  button5;
+    }
+    else if($rotateCheck==0){
+        disable -v 0 button5;
+    }
+    if($scaleCheck==1){
+        disable  button6;
+    }
+    else if($scaleCheck==0){
+        disable -v 0 button6;
+    }
+    ///////
+    if($transCheckWorld==1){
+        disable  button1;
+    }
+    else if($transCheckWorld==0){
+        disable -v 0 button1;
+    }
+    if($rotateCheckWorld==1){
+        disable  button2;
+    }
+    else if($rotateCheckWorld==0){
+        disable -v 0 button2;
+    }
+    if($scaleCheckWorld==1){
+        disable  button3;
+    }
+    else if($scaleCheckWorld==0){
+        disable -v 0 button3;
     }
 }
 
