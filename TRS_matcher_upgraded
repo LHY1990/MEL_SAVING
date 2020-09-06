@@ -1,0 +1,103 @@
+//if you need feedback, call to gns3163@naver.com
+//or
+//gnsdud3163 kakao talk ID
+global int $transCheck=0;
+global int $rotateCheck=0;
+global int $scaleCheck=0;
+
+global proc workSpace(){
+    
+    
+    
+    if (`window -ex tempWindow`){
+        deleteUI -window tempWindow;
+    }
+    
+    
+    window -title "TRS matcher" tempWindow;
+    
+    columnLayout -adjustableColumn 1;
+    text  -label "*********************\nCheck the checkbox\n You need to match\n*********************";
+
+    checkBox -label "Translate"  -onc addingT -ofc resetT;
+    checkBox -label "Rotate"     -onc addingR -ofc resetR;
+    checkBox -label "Scale"      -onc addingS -ofc resetS;
+    button -label "Click After \nSelect an object\n To get a value" -bgc .8 .6 .6 -command "bringData";
+    button -label "Click After \nSelect an object\n To put the value" -bgc .6 .8 .6 -command "setData";
+   
+    
+    
+        
+    showWindow tempWindow;
+    
+}  
+
+
+
+global float $data[9];
+
+
+proc bringData(){
+    string $selected[1]=`ls -sl`;
+    global float $data[9];
+    $data[0]=`getAttr ($selected[0]+".tx")`;
+    $data[1]=`getAttr ($selected[0]+".ty")`;
+    $data[2]=`getAttr ($selected[0]+".tz")`;
+    $data[3]=`getAttr ($selected[0]+".rx")`;
+    $data[4]=`getAttr ($selected[0]+".ry")`;
+    $data[5]=`getAttr ($selected[0]+".rz")`;
+    $data[6]=`getAttr ($selected[0]+".sx")`;
+    $data[7]=`getAttr ($selected[0]+".sy")`;
+    $data[8]=`getAttr ($selected[0]+".sz")`;
+
+}
+proc setData(){
+    string $putOne[1]=`ls -sl`;
+    global float $data[9];
+    global int $transCheck;
+    global int $rotateCheck;
+    global int $scaleCheck;
+
+    
+    if($transCheck){
+        setAttr ($putOne[0]+".tx") $data[0];
+        setAttr ($putOne[1]+".ty") $data[1];
+        setAttr ($putOne[2]+".tz") $data[2];
+    }
+    if($rotateCheck){
+        setAttr ($putOne[3]+".rx") $data[3];
+        setAttr ($putOne[4]+".ry") $data[4];
+        setAttr ($putOne[5]+".rz") $data[5];         
+    }
+    if($scaleCheck){
+        setAttr ($putOne[6]+".sx") $data[6];
+        setAttr ($putOne[7]+".sy") $data[7];
+        setAttr ($putOne[8]+".sz") $data[8];
+    }
+}
+proc addingT(){
+    global int $transCheck;
+    $transCheck=1;
+}
+proc addingR(){
+    global int $rotateCheck;
+    $rotateCheck=1;
+}
+proc addingS(){
+    global int $scaleCheck;
+    $scaleCheck=1;
+}
+proc resetT(){
+    global int $transCheck;
+    $transCheck=0;
+}
+proc resetR(){
+    global int $rotateCheck;
+    $rotateCheck=0;
+}
+proc resetS(){
+    global int $scaleCheck;
+    $scaleCheck=0;
+}
+
+workSpace();
