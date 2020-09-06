@@ -1,0 +1,201 @@
+//if you need feedback, call to gns3163@naver.com
+//or
+//gnsdud3163 kakao talk ID
+
+global int $transCheck=0;
+global int $rotateCheck=0;
+global int $scaleCheck=0;
+global int $transCheckWorld=0;
+global int $rotateCheckWorld=0;
+global int $scaleCheckWorld=0;
+
+global proc workSpace(){
+    
+    
+    
+    if (`window -ex tempWindow`){
+        deleteUI -window tempWindow;
+    }
+    
+    
+    window -title "TRS matcher" tempWindow;
+    
+    columnLayout -adjustableColumn 1;
+    text  -label "*********************\nCheck the checkbox\n You need to match\n*********************";
+    separator -style "none" -h 12; 
+    checkBox -label "Local / Translate"  -onc addingT -ofc resetT -cc isSame;
+    checkBox -label "Local / Rotate"     -onc addingR -ofc resetR -cc isSame;
+    checkBox -label "Local / Scale"      -onc addingS -ofc resetS -cc isSame;
+    checkBox -label "world / Translate"  -onc addingWT -ofc resetWT -cc isSame;
+    checkBox -label "world / Rotate"     -onc addingWR -ofc resetWR -cc isSame;
+    checkBox -label "world / Scale"      -onc addingWS -ofc resetWS -cc isSame;
+    separator -style "none" -h 12; 
+    
+    button -label "Click After \nSelect an object\n To get a value" -bgc .8 .6 .6 -command "bringData";
+    button -label "Click After \nSelect an object\n To put the value" -bgc .6 .8 .6 -command "setData";
+   
+    
+    
+        
+    showWindow tempWindow;
+    
+}  
+
+
+
+global vector $dataT;
+global vector $dataR;
+global vector $dataS;
+global vector $worldDataT;
+global vector $worldDataR;
+global vector $worldDataS;
+
+proc bringData(){
+    string $selected[]=`ls -sl`;
+    
+    global vector $dataT;
+    global vector $dataR;
+    global vector $dataS;
+    $dataT=`xform -q -t  $selected[0]`;
+    $dataR=`xform -q -ro  $selected[0]`;
+    $dataS=`xform -q -s   $selected[0]`;
+    global vector $worldDataT;
+    global vector $worldDataR;
+    global vector $worldDataS;
+    $worldDataT=`xform -q -t -ws $selected[0]`;
+    $worldDataR=`xform -q -ro -ws $selected[0]`;
+    $worldDataS=`xform -q -s -ws  $selected[0]`;
+    
+
+
+
+}
+proc setData(){
+    string $putOne[1]=`ls -sl`;
+    global float $data[9];
+    global vector $dataT;
+    global vector $dataR;
+    global vector $dataS;
+    global vector $worldDataT;
+    global vector $worldDataR;
+    global vector $worldDataS;
+    global int $transCheck;
+    global int $rotateCheck;
+    global int $scaleCheck;
+    global int $transCheckWorld;
+    global int $rotateCheckWorld;
+    global int $scaleCheckWorld;
+    
+    
+    
+    if($transCheck){
+        setAttr ($putOne[0]+".tx") ($dataT.x);
+        setAttr ($putOne[0]+".ty") ($dataT.y);
+        setAttr ($putOne[0]+".tz") ($dataT.z);
+    }
+    if($rotateCheck){
+        setAttr ($putOne[0]+".rx") ($dataR.x);
+        setAttr ($putOne[0]+".ry") ($dataR.y);
+        setAttr ($putOne[0]+".rz") ($dataR.z);         
+    }
+    if($scaleCheck){
+        setAttr ($putOne[0]+".sx") ($dataS.x);
+        setAttr ($putOne[0]+".sy") ($dataS.y);
+        setAttr ($putOne[0]+".sz") ($dataS.z);
+    }
+    
+    ///////////////////////////////////////////
+    
+    if($transCheckWorld){
+        setAttr ($putOne[0]+".tx") ($worldDataT.x);
+        setAttr ($putOne[0]+".ty") ($worldDataT.y);
+        setAttr ($putOne[0]+".tz") ($worldDataT.z);
+    }
+    if($rotateCheckWorld){
+        setAttr ($putOne[0]+".rx") ($worldDataR.x);
+        setAttr ($putOne[0]+".ry") ($worldDataR.y);
+        setAttr ($putOne[0]+".rz") ($worldDataR.z);         
+    }
+    if($scaleCheckWorld){
+        setAttr ($putOne[0]+".sx") ($worldDataS.x);
+        setAttr ($putOne[0]+".sy") ($worldDataS.y);
+        setAttr ($putOne[0]+".sz") ($worldDataS.z);
+    }
+    
+    
+    
+    
+    
+}
+proc addingT(){
+    global int $transCheck;
+    $transCheck=1;
+}
+proc addingR(){
+    global int $rotateCheck;
+    $rotateCheck=1;
+}
+proc addingS(){
+    global int $scaleCheck;
+    $scaleCheck=1;
+}
+proc resetT(){
+    global int $transCheck;
+    $transCheck=0;
+}
+proc resetR(){
+    global int $rotateCheck;
+    $rotateCheck=0;
+}
+proc resetS(){
+    global int $scaleCheck;
+    $scaleCheck=0;
+}
+//////////////////////////////////////////////
+proc addingWT(){
+    global int $transCheckWorld;
+    $transCheckWorld=1;
+}
+proc addingWR(){
+    global int $rotateCheckWorld;
+    $rotateCheckWorld=1;
+}
+proc addingWS(){
+    global int $scaleCheckWorld;
+    $scaleCheckWorld=1;
+}
+proc resetWT(){
+    global int $transCheckWorld;
+    $transCheckWorld=0;
+}
+proc resetWR(){
+    global int $rotateCheckWorld;
+    $rotateCheckWorld=0;
+}
+proc resetWS(){
+    global int $scaleCheckWorld;
+    $scaleCheckWorld=0;
+}
+proc isSame(){
+    global int $transCheck;
+    global int $rotateCheck;
+    global int $scaleCheck;
+    global int $transCheckWorld;
+    global int $rotateCheckWorld;
+    global int $scaleCheckWorld;
+    
+    if(($transCheck==1) && ($transCheckWorld==1) ){
+        print "can't set both local and world value in once";
+        confirmDialog -title "warning" -message "Can't set both local and world value in once";
+    }
+    else if(($rotateCheck==1) && ($rotateCheckWorld==1)){
+        print "can't set both local and world value in once";
+        confirmDialog -title "warning" -message "Can't set both local and world value in once"; 
+    }
+    else if(($scaleCheck==1) && ($scaleCheckWorld==1)){
+        print "can't set both local and world value in once";
+        confirmDialog -title "warning" -message "Can't set both local and world value in once"; 
+    }
+}
+
+workSpace();
