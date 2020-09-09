@@ -1,0 +1,280 @@
+unloadPlugin "cameraViewAPI.mll";
+unloadPlugin "outOfcameraAPI.mll";
+loadPlugin "C:/Users/계정이름/Documents/maya/2019/scripts/cameraViewAPI.mll";
+loadPlugin "C:/Users/계정이름/Documents/maya/2019/scripts/outOfcameraAPI.mll";
+string $currentCAMset=`lookThru -q`;
+setAttr ($currentCAMset+".displayResolution") 1;
+setAttr ($currentCAMset+".displayGateMask") 1;
+modelEditor -e -polymeshes true modelPanel1;
+modelEditor -e -polymeshes true modelPanel2;
+modelEditor -e -polymeshes true modelPanel3;
+modelEditor -e -polymeshes true modelPanel4;
+
+global proc cameraViewSelectionWindow(){
+    string $currentCAMset=`lookThru -q`;
+    
+    if (`window -ex cameraViewSelectionWindow`){
+        deleteUI -window cameraViewSelectionWindow;
+    }
+    
+    window -title "기본 화면 셋업" cameraViewSelectionWindow;
+    
+    columnLayout -columnAttach "both" 5 -rowSpacing 3 -columnWidth 250 ;
+    
+    text  -label "------------------------------------\n누르기 전 해당 카메라가 있는 \n화면을 활성화 해줍니다.\n------------------------------------";
+    
+    //text - label ("현재 카메라 : "+$currentCAMset+"\n") -font "boldLabelFont" -al "left";
+    button -label "\nSet Single Frame \n"  -bgc .5 .8 .6 -command selectSingleFrame;
+    button -label "\nSet Multiframe\n" -bgc .8 .6 .8 -command selectAllFrame;
+    //button -label "\nuse depth single\n" -bgc .5 .5 .8 -command useDepthSingle;
+    //button -label "\nuse depth multi\n" -bgc .5 .6 .6 -command useDepthMulti;
+    
+    button -label "Reset" -bgc .6 .6 .6 -command reset;
+    
+    separator -style "none" -h 30;
+    ///////////////////////////////////////////////////////////////////////////////////
+    string $currentCAM=`lookThru -q`;
+    setAttr ($currentCAM+".displayResolution") 1;
+    setAttr ($currentCAM+".displayGateMask") 1;
+    attrFieldSliderGrp -label "카메라범위" -min 1.0 -max 2 -at ($currentCAM+".overscan") ;
+    
+    button -label "increase range of camera"  -command rangeAdd;
+    button -label "decrease range of camera"  -command rangeSub;
+    
+    showWindow cameraViewSelectionWindow;
+    
+}
+
+
+proc selectSingleFrame(){
+	
+
+	
+    string $currentcam1=`lookThru -q`;
+    string $selectedButton =`confirmDialog -title "confirm your camera" -message ("카메라를 확인해 주세요"+"\n\n"+$currentcam1)  -button "Yes" -button "No" -defaultButton "Yes" -cancelButton "No" -dismissString "No"`;
+    
+
+    if($selectedButton=="Yes"){
+        
+        
+        
+        
+        
+        
+        modelEditor -e -allObjects 0 modelPanel1;
+        modelEditor -e -allObjects 0 modelPanel2;
+        modelEditor -e -allObjects 0 modelPanel3;
+        modelEditor -e -allObjects 0 modelPanel4;
+        
+        select -clear;
+        string $layerName=`editRenderLayerGlobals -q -currentRenderLayer`;
+        renderLayerEditorSelectObjects RenderLayerTab $layerName;
+        string $selection[] = `ls -sl -v`;
+        
+        string $polyGons[] = `filterExpand -sm 12 $selection`;
+        
+     
+        
+        //
+        select $polyGons;
+        string $selectionAgain[] = `ls -sl -v`;
+        select $selectionAgain;
+        
+        modelEditor -e -polymeshes true modelPanel1;
+        modelEditor -e -polymeshes true modelPanel2;
+        modelEditor -e -polymeshes true modelPanel3;
+        modelEditor -e -polymeshes true modelPanel4;
+        outOfcameraViewSelection;
+        
+        if(`objExists  outOfCamera.shading`){
+            setAttr outOfCamera.visibility 0;
+        }
+        else{
+            
+            createDisplayLayer -n "outOfCamera";
+            setAttr outOfCamera.visibility 0;
+            
+            
+        }
+        //setAttr outOfCamera.visibility 0;
+        layerEditorAddObjects outOfCamera;
+        
+        select -clear ;
+        //single frame job
+        useDepthSingle();
+
+        
+        
+    }
+    else{}
+
+}
+
+//multiframejob
+proc selectAllFrame(){
+
+
+        
+    string $currentcam2=`lookThru -q`;
+    string $selectedButton =`confirmDialog -title "confirm your camera" -message ("카메라를 확인해 주세요"+"\n\n"+$currentcam2) -button "Yes" -button "No" -defaultButton "Yes" -cancelButton "No" -dismissString "No"`;
+    if($selectedButton=="Yes"){
+
+        
+        
+        modelEditor -e -allObjects 0 modelPanel1;
+        modelEditor -e -allObjects 0 modelPanel2;
+        modelEditor -e -allObjects 0 modelPanel3;
+        modelEditor -e -allObjects 0 modelPanel4;
+            
+        select -clear ;
+        
+        
+        //만약에 레이어가 없으면 만듦
+        if(`objExists  outOfCamera.shading`){
+            setAttr outOfCamera.visibility 0;
+        }
+        else{
+            createDisplayLayer -n "outOfCamera";
+            setAttr outOfCamera.visibility 0;
+        }
+            
+        int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+        int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+        
+        
+        string $layerName=`editRenderLayerGlobals -q -currentRenderLayer`;
+        renderLayerEditorSelectObjects RenderLayerTab $layerName;
+        string $selection[] = `ls -sl -v`;
+        
+        string $polyGons[] = `filterExpand -sm 12 $selection`;
+        
+     
+        
+        //
+        select $polyGons;
+        string $selectionAgain[] = `ls -sl -v`;
+        select $selectionAgain;
+        
+        
+        
+        modelEditor -e -polymeshes true modelPanel1;
+        modelEditor -e -polymeshes true modelPanel2;
+        modelEditor -e -polymeshes true modelPanel3;
+        modelEditor -e -polymeshes true modelPanel4;
+        
+        
+        
+        
+        for(;$firstFrame<=$lastFrame;$firstFrame++){
+            currentTime $firstFrame;
+            outOfcameraViewSelection;
+            
+        }
+        
+        layerEditorAddObjects outOfCamera;
+        setAttr outOfCamera.visibility 0;
+        select -clear ;
+        
+        
+        
+        
+        
+        useDepthMulti();
+        
+    }
+    else{}
+
+
+}
+proc useDepthSingle(){
+    //string $panel=`getPanel -withFocus `;//현재 패널가져오기
+    //print $panel;
+    //string $cameraTemp;
+    //$cameraTemp = `modelEditor -q -camera $panel`;//현재 패널을 보는 카메라 가져오기
+    //print $cameraTemp;
+    selectPref -useDepth true;
+    cameraViewSelection;
+    
+    
+    
+    selectPref -useDepth false;
+    
+    if(`objExists  onCamera.shading`){}
+    else{
+        
+        createDisplayLayer -n "onCamera";
+        
+        
+    }
+    
+    layerEditorAddObjects onCamera;
+}
+proc useDepthMulti(){
+        
+    int $firstFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    int $lastFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+    
+    if(`objExists  onCamera.shading`){}
+    else{
+        
+        createDisplayLayer -n "onCamera";
+            
+    }
+    
+        
+    for(;$firstFrame<=$lastFrame;$firstFrame++){
+        currentTime $firstFrame;
+        
+        selectPref -useDepth true;
+        cameraViewSelection;
+        selectPref -useDepth false;
+        
+    }     
+    layerEditorAddObjects onCamera;    
+        
+        
+        
+}
+
+proc reset(){
+    modelEditor -e -allObjects 0 modelPanel1;
+    modelEditor -e -allObjects 0 modelPanel2;
+    modelEditor -e -allObjects 0 modelPanel3;
+    modelEditor -e -allObjects 0 modelPanel4;
+    
+    select -clear;
+    
+    modelEditor -e -polymeshes true modelPanel1;
+    modelEditor -e -polymeshes true modelPanel2;
+    modelEditor -e -polymeshes true modelPanel3;
+    modelEditor -e -polymeshes true modelPanel4;
+    
+    
+    
+    
+    
+    if(`objExists  onCamera.shading`){
+        delete onCamera;
+    }
+    if(`objExists  outOfCamera.shading`){
+        delete outOfCamera;
+    }
+}
+proc rangeAdd(){
+    string $CAM=`lookThru -q`;
+    float $tempRange=`getAttr ($CAM+".overscan")`;
+    $tempRange=$tempRange+0.05;
+    setAttr ($CAM+".overscan") $tempRange;
+    
+}
+proc rangeSub(){
+    string $CAM=`lookThru -q`;
+    float $tempRange=`getAttr ($CAM+".overscan")`;
+    $tempRange=$tempRange-0.05;
+    setAttr ($CAM+".overscan") $tempRange;
+    
+}
+  
+
+
+cameraViewSelectionWindow();
