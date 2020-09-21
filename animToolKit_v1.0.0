@@ -1,0 +1,26 @@
+global proc animWork_v01(){
+    
+    //이름은 매번 바꿔서 사용할것
+    
+    if (`window -ex animWindowId`){
+        deleteUI -window animWindowId;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "animToolKit_v1.0.0" animWindowId;
+    
+    columnLayout -adjustableColumn 1;
+    
+    //버튼 시작
+
+    intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
+    button -label "임시버튼" -bgc .5 .5 .5 ;
+   
+    
+    
+    //버튼완료    
+    showWindow animWindowId;
+    
+}
+
+animWork_v01();
