@@ -5,17 +5,46 @@ global proc animWork_v01(){
     if (`window -ex animWindowId`){
         deleteUI -window animWindowId;
     }
-    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
     
-    window -title "animToolKit_v1.0.0" animWindowId;
     
-    columnLayout -adjustableColumn 1;
+    window -title "AnimToolKit_v1.0.0" animWindowId;
+    
+    rowColumnLayout -numberOfColumns 1;
+    text -label "\nAnimToolKit v 1. 0. 0\n";
     
     //버튼 시작
+	rowColumnLayout -numberOfColumns 4;
+	
+	text -label "Translate";
+	checkBox -label "X" -v 1;
+	checkBox -label "Y" -v 1;
+	checkBox -label "Z" -v 1;
 
-    intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
+
+	//
+	text -label "Rotate    ";
+	checkBox -label "X" -v 1;
+	checkBox -label "Y" -v 1;
+	checkBox -label "Z" -v 1;
+	//
+	
+	text -label "Scale      ";
+	checkBox -label "X" -v 1;
+	checkBox -label "Y" -v 1;
+	checkBox -label "Z" -v 1;
+	//
+	
+	text -label "visibility";
+	checkBox -label "" -v 1;
+	text -l "";
+	text -l "";
+	rowColumnLayout -numberOfColumns 1;
+	text -l "\n";
+	
+    //intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
     button -label "임시버튼" -bgc .5 .5 .5 ;
-   
+    button -label "임시버튼" -bgc .5 .5 .5 ;
+    button -label "임시버튼" -bgc .5 .5 .5 ;
     
     
     //버튼완료    
