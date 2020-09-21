@@ -13,36 +13,31 @@ global proc animWork_v01(){
     text -label "\nAnimToolKit v 1. 0. 0\n";
     
     //버튼 시작
-	rowColumnLayout -numberOfColumns 4;
 	
-	text -label "Translate";
-	checkBox -label "X" -v 1;
-	checkBox -label "Y" -v 1;
-	checkBox -label "Z" -v 1;
-
-
-	//
-	text -label "Rotate    ";
-	checkBox -label "X" -v 1;
-	checkBox -label "Y" -v 1;
-	checkBox -label "Z" -v 1;
-	//
 	
-	text -label "Scale      ";
-	checkBox -label "X" -v 1;
-	checkBox -label "Y" -v 1;
-	checkBox -label "Z" -v 1;
-	//
 	
-	text -label "visibility";
-	checkBox -label "" -v 1;
-	text -l "";
-	text -l "";
 	rowColumnLayout -numberOfColumns 1;
+	checkBox -label "Translate X" -v 1;
+	checkBox -label "Translate Y" -v 1;
+	checkBox -label "Translate Z" -v 1;
+
+	checkBox -label "Rotate X" -v 1;
+	checkBox -label "Rotate Y" -v 1;
+	checkBox -label "Rotate Z" -v 1;
+
+	checkBox -label "Scale X" -v 1;
+	checkBox -label "Scale Y" -v 1;
+	checkBox -label "Scale Z" -v 1;
+	//
+	
+	
+	checkBox -label "Visibility" -v 1;
+
+	rowColumnLayout ;
 	text -l "\n";
 	
     //intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
-    button -label "임시버튼" -bgc .5 .5 .5 ;
+    button -label "SET KEY        " -bgc .5 .5 .5 ;
     button -label "임시버튼" -bgc .5 .5 .5 ;
     button -label "임시버튼" -bgc .5 .5 .5 ;
     
