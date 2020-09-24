@@ -28,16 +28,16 @@ global proc animWork_v01(){
     }
     
     
-    window -title "AnimToolKit_v1.0.0" animWindowId;
+    window -title "Easy2key_v1.0.0" animWindowId;
     
     rowColumnLayout -numberOfColumns 1;
-    text -fn "boldLabelFont" -label "----------------------------\nAnimToolKit v 1. 0. 0\n----------------------------";
+    text -fn "boldLabelFont" -label "----------------------------\nEasy2key v 1. 0. 0\n----------------------------";
     
     //
    
    
    
-   rowColumnLayout -numberOfColumns 1;
+
    checkBox -label "Translate X" -v 1 -onc tx1  -ofc tx0 ;
    checkBox -label "Translate Y" -v 1 -onc ty1  -ofc ty0 ;
    checkBox -label "Translate Z" -v 1 -onc tz1  -ofc tz0 ;
