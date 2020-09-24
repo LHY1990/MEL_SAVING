@@ -11,16 +11,16 @@ global int $vis=1;
 
 
 global proc animWork_v01(){
-	global int $tx=1;
-	global int $ty=1;
-	global int $tz=1;
-	global int $rx=1;
-	global int $ry=1;
-	global int $rz=1;
-	global int $sx=1;
-	global int $sy=1;
-	global int $sz=1;
-	global int $vis=1;
+   global int $tx=1;
+   global int $ty=1;
+   global int $tz=1;
+   global int $rx=1;
+   global int $ry=1;
+   global int $rz=1;
+   global int $sx=1;
+   global int $sy=1;
+   global int $sz=1;
+   global int $vis=1;
 
     
     if (`window -ex animWindowId`){
@@ -31,37 +31,44 @@ global proc animWork_v01(){
     window -title "AnimToolKit_v1.0.0" animWindowId;
     
     rowColumnLayout -numberOfColumns 1;
-    text -label "\nAnimToolKit v 1. 0. 0\n";
+    text -fn "boldLabelFont" -label "----------------------------\nAnimToolKit v 1. 0. 0\n----------------------------";
     
-    //버튼 시작
-	
-	
-	
-	rowColumnLayout -numberOfColumns 1;
-	checkBox -label "Translate X" -v 1 -onc tx1  -ofc tx0 ;
-	checkBox -label "Translate Y" -v 1 -onc ty1  -ofc ty0 ;
-	checkBox -label "Translate Z" -v 1 -onc tz1  -ofc tz0 ;
+    //
+   
+   
+   
+   rowColumnLayout -numberOfColumns 1;
+   checkBox -label "Translate X" -v 1 -onc tx1  -ofc tx0 ;
+   checkBox -label "Translate Y" -v 1 -onc ty1  -ofc ty0 ;
+   checkBox -label "Translate Z" -v 1 -onc tz1  -ofc tz0 ;
 
-	checkBox -label "Rotate X" -v 1 -onc rx1 -ofc rx0;
-	checkBox -label "Rotate Y" -v 1 -onc ry1 -ofc ry0;
-	checkBox -label "Rotate Z" -v 1 -onc rz1 -ofc rz0;
+   checkBox -label "Rotate X" -v 1 -onc rx1 -ofc rx0;
+   checkBox -label "Rotate Y" -v 1 -onc ry1 -ofc ry0;
+   checkBox -label "Rotate Z" -v 1 -onc rz1 -ofc rz0;
 
-	checkBox -label "Scale X" -v 1 -onc sx1 -ofc sx0;
-	checkBox -label "Scale Y" -v 1 -onc sy1 -ofc sy0;
-	checkBox -label "Scale Z" -v 1 -onc sz1 -ofc sz0;
-	//
-	checkBox -label "Visibility" -v 1 -onc vis1 -ofc vis0;
+   checkBox -label "Scale X" -v 1 -onc sx1 -ofc sx0;
+   checkBox -label "Scale Y" -v 1 -onc sy1 -ofc sy0;
+   checkBox -label "Scale Z" -v 1 -onc sz1 -ofc sz0;
+   //
+   checkBox -label "Visibility" -v 1 -onc vis1 -ofc vis0;
 
 
-	text -l "\n";
-	
-    //intFieldGrp -label "인티저 슬라이드"   _startFrame_id;
-    button -label "\n______SET selected KEY______\n" -bgc .5 .5 .5 -c setkey;
-    button -label "\n______DEL all KEY______\n" -bgc .5 .5 .5 -c delkey;
+   text -l "\n";
+   
+    
+    text -fn "boldLabelFont" -l "Set / Delete";
+    separator -style "none" -h 4;
+    button -label "SET selected KEY" -h 44 -bgc .9 .6 .6 -c setkey;
+    button -label "DEL all KEY" -h 44 -bgc .6 .9 .5 -c delkey;
+    separator -style "none" -h 12;
+    text -fn "boldLabelFont" -l "Lock / Unlock";
+    separator -style "none" -h 4;
+    button -label "LOCK selected KEY" -h 40 -bgc .7 .85 .7 -c lockKey;
+    button -label "UNLOCK selected KEY" -h 40 -bgc .7 .7 .85 -c unlockKey;
 
     
     
-    //버튼완료    
+    //    
     showWindow animWindowId;
     
 }
@@ -90,41 +97,107 @@ proc vis1(){global int $vis; $vis=1;}
 proc vis0(){global int $vis; $vis=0;}
 
 proc setkey(){
-	
-	global int $tx;
-	global int $ty;
-	global int $tz;
-	global int $rx;
-	global int $ry;
-	global int $rz;
-	global int $sx;
-	global int $sy;
-	global int $sz;
-	global int $vis;
+   
+   global int $tx;
+   global int $ty;
+   global int $tz;
+   global int $rx;
+   global int $ry;
+   global int $rz;
+   global int $sx;
+   global int $sy;
+   global int $sz;
+   global int $vis;
 
-	
+   
 
 
-	string $tempSel[]=`ls -sl`;
-	string $tempObj;
-	
-	
-	for($tempObj in $tempSel){
-		if($tx==1){setKeyframe ($tempObj+".tx");}
-		if($ty==1){setKeyframe ($tempObj+".ty");}
-		if($tz==1){setKeyframe ($tempObj+".tz");}
-		if($rx==1){setKeyframe ($tempObj+".rx");}
-		if($ry==1){setKeyframe ($tempObj+".ry");}
-		if($rz==1){setKeyframe ($tempObj+".rz");}
-		if($sx==1){setKeyframe ($tempObj+".sx");}
-		if($sy==1){setKeyframe ($tempObj+".sy");}
-		if($sz==1){setKeyframe ($tempObj+".sz");}
-		if($vis==1){setKeyframe ($tempObj+".v");}
-		
-	}
+   string $tempSel[]=`ls -sl`;
+   string $tempObj;
+   
+   
+   for($tempObj in $tempSel){
+      if($tx==1){setKeyframe ($tempObj+".tx");}
+      if($ty==1){setKeyframe ($tempObj+".ty");}
+      if($tz==1){setKeyframe ($tempObj+".tz");}
+      if($rx==1){setKeyframe ($tempObj+".rx");}
+      if($ry==1){setKeyframe ($tempObj+".ry");}
+      if($rz==1){setKeyframe ($tempObj+".rz");}
+      if($sx==1){setKeyframe ($tempObj+".sx");}
+      if($sy==1){setKeyframe ($tempObj+".sy");}
+      if($sz==1){setKeyframe ($tempObj+".sz");}
+      if($vis==1){setKeyframe ($tempObj+".v");}
+      
+   }
 }
 proc delkey(){
-	timeSliderCutKey;
+   timeSliderCutKey;
+}
+proc lockKey(){
+   global int $tx;
+   global int $ty;
+   global int $tz;
+   global int $rx;
+   global int $ry;
+   global int $rz;
+   global int $sx;
+   global int $sy;
+   global int $sz;
+   global int $vis;
+
+   
+
+
+   string $tempSel[]=`ls -sl`;
+   string $tempObj;
+   
+   
+   for($tempObj in $tempSel){
+      if($tx==1){setAttr -lock true ($tempObj+".tx");}
+      if($ty==1){setAttr -lock true ($tempObj+".ty");}
+      if($tz==1){setAttr -lock true ($tempObj+".tz");}
+      if($rx==1){setAttr -lock true ($tempObj+".rx");}
+      if($ry==1){setAttr -lock true ($tempObj+".ry");}
+      if($rz==1){setAttr -lock true ($tempObj+".rz");}
+      if($sx==1){setAttr -lock true ($tempObj+".sx");}
+      if($sy==1){setAttr -lock true ($tempObj+".sy");}
+      if($sz==1){setAttr -lock true ($tempObj+".sz");}
+      if($vis==1){setAttr -lock true ($tempObj+".v");}
+      
+   }
+}
+proc unlockKey(){
+   global int $tx;
+   global int $ty;
+   global int $tz;
+   global int $rx;
+   global int $ry;
+   global int $rz;
+   global int $sx;
+   global int $sy;
+   global int $sz;
+   global int $vis;
+
+   
+
+
+   string $tempSel[]=`ls -sl`;
+   string $tempObj;
+   
+   
+   for($tempObj in $tempSel){
+      if($tx==1){setAttr -lock false ($tempObj+".tx");}
+      if($ty==1){setAttr -lock false ($tempObj+".ty");}
+      if($tz==1){setAttr -lock false ($tempObj+".tz");}
+      if($rx==1){setAttr -lock false ($tempObj+".rx");}
+      if($ry==1){setAttr -lock false ($tempObj+".ry");}
+      if($rz==1){setAttr -lock false ($tempObj+".rz");}
+      if($sx==1){setAttr -lock false ($tempObj+".sx");}
+      if($sy==1){setAttr -lock false ($tempObj+".sy");}
+      if($sz==1){setAttr -lock false ($tempObj+".sz");}
+      if($vis==1){setAttr -lock false ($tempObj+".v");}
+      
+   }
 }
 
 
