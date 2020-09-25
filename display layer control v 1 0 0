@@ -15,6 +15,9 @@ global proc displaylayer_control(){
     
     columnLayout -adjustableColumn 1;
     button -label "Refresh Window" -h 22 -bgc .7 .9 .7 -c refreshWindow;
+    separator -h 6;
+    text -al "left"-label "  Displaylayer List";
+    separator -style "none" -h 6;
     
     textScrollList -numberOfRows $sizeOfDisplayLayer -ams 1 -font "boldLabelFont"  listId;
     //paneLayout;
