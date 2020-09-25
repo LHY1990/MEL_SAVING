@@ -1,0 +1,237 @@
+global string $templayerName;
+
+global proc displaylayer_control(){
+	
+    string $ma_selected[] = `ls -type "displayLayer"`;
+    int $sizeOfDisplayLayer=size($ma_selected);
+    //컴포넌트 갯수만큼 리스트를 만든다.
+    
+    if (`window -ex displayCTRwindow`){
+        deleteUI -window displayCTRwindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "DisplayLayer control v 1.0.0" displayCTRwindow;
+    
+    columnLayout -adjustableColumn 1;
+    button -label "Refresh Window" -h 22 -bgc .7 .9 .7 -c refreshWindow;
+    
+    textScrollList -numberOfRows $sizeOfDisplayLayer -ams 1 -font "boldLabelFont"  listId;
+    //paneLayout;
+    textScrollList_custum;//개인 함수
+    
+    separator -h 12;
+    
+    text -label "--- MULTI LAYER JOB ---" -font "boldLabelFont" -h 22;
+    button -label "Visible"            -bgc .7 .7 .7-h 33  -c visOn;
+    button -label "Invisable"          -bgc .7 .7 .7-h 33 -c visOff; 
+
+    
+    separator -style "none" -h 7;
+
+    button -label "Full detail"        -h 33 -bgc .7 .7 .9-c fulldata;
+    button -label "Box detail"         -h 33 -bgc .7 .7 .9-c lowdata;
+    separator -style "none" -h 7;
+
+    button -label "Empty the layer"   -bgc .88 .88 .88 -h 33 -c emptyLayer;
+    button -label "Delete the layer"  -bgc .9 .7 .7  -h 33 -c delLayer;
+    separator -style "none" -h 12;
+    
+    text -label "--- SINGLE LAYER JOB ---" -font "boldLabelFont" -h 22;
+    button -label "Select objects from layer"  -h 33 -c selectLayer;
+    button -label "Add selected Objects to layer" -h 33 -c addtoSel;   
+    separator -h 12; 
+    
+    $custumedName=`textFieldGrp -w 2 -label "Rename To : " -it "enter a name to change" tempID`;
+    button -label "Click to rename current Layer" -c renameLayer;
+    separator -style "none" -h 12;
+    checkBox -label "DisplayLayerSort\nAlphabetically/Chronologically" -onc checkOn -ofc checkOff ;
+    //버튼완료    
+    showWindow displayCTRwindow;
+    
+}
+
+
+proc textScrollList_custum(){
+    string $ma_selected[] = `ls -type "displayLayer"`;
+    string $ma_sel;
+    int $sizeOfArray=size($ma_selected);
+    
+    
+    textScrollList -e -ra listId;
+    for ($ma_sel in $ma_selected){
+        //리스트 갱신을 한다.
+         
+        string $pickWalked[] = `pickWalk -d down $ma_sel`;
+        textScrollList -e -a $pickWalked listId;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////
+proc refreshWindow(){
+   
+    displaylayer_control();
+
+}
+proc visOn(){
+   
+    string $tempSelected[] = `textScrollList -q -si listId`;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+       layerEditorLayerButtonSelect 0 $iterSingle;
+        setLayerTo selected".visibility" 1;
+    }
+    clear $tempSelected;
+   
+}
+proc visOff(){
+   
+    string $tempSelected[] = `textScrollList -q -si listId`;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+       layerEditorLayerButtonSelect 0 $iterSingle;
+        setLayerTo selected".visibility" 0;
+    }
+   
+    clear $tempSelected;
+   
+}
+proc fulldata(){
+    string $tempSelected[] = `textScrollList -q -si listId`;
+    print $tempSelected;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+       layerEditorLayerButtonSelect 0 $iterSingle;      
+        setLayerTo selected".levelOfDetail" 0;
+    }
+    clear $tempSelected;
+}
+
+proc lowdata(){
+    string $tempSelected[] = `textScrollList -q -si listId`;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+       layerEditorLayerButtonSelect 0 $iterSingle;      
+        setLayerTo selected".levelOfDetail" 1;
+    }
+    clear $tempSelected;
+}
+
+
+proc removeSel(){
+   //error
+    string $tempSelected[] = `textScrollList -q -si listId`;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+        layerEditorRemoveObjects $iterSingle;
+        editDisplayLayerMembers -noRecurse $iterSingle `ls -selection`;
+        break;  
+    }
+    clear $tempSelected;
+   
+}
+proc emptyLayer(){
+   string $tempSelected[] = `textScrollList -q -si listId`;
+    print $tempSelected;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+      layerEditorEmpty $iterSingle;
+    }
+    clear $tempSelected;
+   
+   
+}
+proc delLayer(){
+   string $tempSelected[] = `textScrollList -q -si listId`;
+    print $tempSelected;
+    string $iterSingle;
+    for ($iterSingle in $tempSelected){
+       evalDeferred ("layerEditorDeleteLayer "+$iterSingle);
+      layerEditorDeleteLayer $iterSingle;
+      delete $iterSingle;
+    }
+    clear $tempSelected;
+
+    
+}
+
+
+
+proc selectLayer(){
+	if(`isSingle`){
+		string $tempSelected[] = `textScrollList -q -si listId`;
+   		string $iterSingle;
+    	for ($iterSingle in $tempSelected){
+        layerEditorSelectObjects $iterSingle;
+    }
+    clear $tempSelected;
+	}
+	else{
+		print "Please Select single DisplayLayer only";
+	}
+
+}
+proc addtoSel(){
+    if(`isSingle`){
+    	string $tempSelected[] = `textScrollList -q -si listId`;
+   	    string $iterSingle;
+   	    for ($iterSingle in $tempSelected){
+        layerEditorAddObjects $iterSingle;
+        editDisplayLayerMembers -noRecurse $iterSingle `ls -selection`;
+        break;
+    }
+    clear $tempSelected;
+    }
+	else{
+		print "Please Select single DisplayLayer only";
+	}
+   
+}
+proc renameLayer(){
+	global string $templayerName;
+	$templayerName=`textFieldGrp -q -tx tempID`;
+	
+	
+	if(`isSingle`){
+    	string $tempSelected[] = `textScrollList -q -si listId`;
+   	    string $iterSingle;
+   	    for ($iterSingle in $tempSelected){
+        	rename $iterSingle $templayerName;
+        break;
+    }
+    clear $tempSelected;
+    }
+	else{
+		print "Please Select single DisplayLayer only";
+	}
+	
+}
+
+
+
+proc checkOn(){
+   optionVar -intValue displayLayerSortOptions 1; reorderLayers 1;
+}
+proc checkOff(){
+   optionVar -intValue displayLayerSortOptions 0;  reorderLayers 0;
+}
+
+
+
+
+proc int isSingle(){
+	string $tempSelected[] = `textScrollList -q -si listId`;
+    int $sizeOf=size($tempSelected);
+
+    if($sizeOf==1){
+    	return 1;
+    }
+    else{
+    	return 0;
+    }
+    
+}
+
+
+displaylayer_control();
