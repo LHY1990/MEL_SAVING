@@ -74,8 +74,8 @@ proc textScrollList_custum(){
 ////////////////////////////////////////////////////////////////
 proc refreshWindow(){
    
-    displaylayer_control();
-
+    evalDeferred(displaylayer_control());
+	//displaylayer_control();
 }
 proc visOn(){
    
