@@ -1,61 +1,76 @@
-global string $templayerName;
 
-global proc displaylayer_control(){
-	
-    string $ma_selected[] = `ls -type "displayLayer"`;
-    int $sizeOfDisplayLayer=size($ma_selected);
-    //컴포넌트 갯수만큼 리스트를 만든다.
-    
-    if (`window -ex displayCTRwindow`){
-        deleteUI -window displayCTRwindow;
+
+proc displaylayer_control(int $open){
+      if($open>0){
+       string $ma_selected[] = `ls -type "displayLayer"`;
+       
+       //컴포넌트 갯수만큼 리스트를 만든다.
+       
+       if (`window -ex displayCTRwindow`){
+           deleteUI -window displayCTRwindow;
+           windowPref -r displayCTRwindow;
+       }
+       
+       
+       window -title "DisplayLayer control v 1.0.0" displayCTRwindow;
+       
+       rowColumnLayout -nc 2;
+       
+       frameLayout -label "Displaylayer List" -collapsable true -bgc .31 .31 .31  ; 
+          columnLayout -adj 1 ;
+          separator -style "none" -h 2;
+          
+          
+          textScrollList -numberOfRows 29 -ams 1   -font "boldLabelFont"  listId;
+          
+          textScrollList_custum;//개인 함수
+          
+          setParent ..;
+       setParent ..;
+       
+       
+       columnLayout -adj 1 ;
+          frameLayout -label "MultiLayer Job" -collapsable true  -bgc .31 .31 .31 ;
+          separator -style "none" ;
+          rowColumnLayout -nc 2 ;
+             button -label "Visible"       -w 134      -c visOn;
+             button -label "Invisable"     -w 134      -c visOff; 
+               separator;separator;
+         
+             button -label "Full detail"        -c fulldata;
+             button -label "Box detail"          -c lowdata;
+             separator;separator;
+         
+             button -label "Empty layers"     -c emptyLayer;
+             button -label "Delete layers"    -c delLayer;
+          setParent ..;
+      setParent ..;
+      separator;
+      frameLayout -label "SingleLayer Job" -collapsable true -bgc .31 .31 .31   ;
+             
+          separator -style "none" ;
+          button -label "Create new layer"   -c createLayer;
+          button -label "Select objects from layer"   -c selectLayer;
+          button -label "Add selected Objects to layer"  -c addtoSel;   
+           
+          
+          $custumedName=`textFieldGrp  -it "enter a name to change" tempID`;
+          button -label "Click to rename current Layer" -c renameLayer;
+          
+          $custumedName=`textFieldGrp  -it "enter a name to create" createID`;
+          button -label "Click to create Layer" -c createNamedLayer;
+          
+          text -label "Please renew window after edit layers.";
+          //checkBox -label "LayerSort: Alphabetically/Chronologically" -onc checkOn -ofc checkOff ;
+          setParent;
+       setParent ..;  
+       //checkBox -label "LayerSort: Alphabetically/Chronologically" -onc checkOn -ofc checkOff ;
+       showWindow displayCTRwindow;
     }
-    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
-    
-    window -title "DisplayLayer control v 1.0.0" displayCTRwindow;
-    
-    columnLayout -adjustableColumn 1;
-    button -label "Refresh Window" -h 22 -bgc .7 .9 .7 -c refreshWindow;
-    separator -h 6;
-    text -al "left"-label "  Displaylayer List";
-    separator -style "none" -h 6;
-    
-    textScrollList -numberOfRows $sizeOfDisplayLayer -ams 1 -font "boldLabelFont"  listId;
-    //paneLayout;
-    textScrollList_custum;//개인 함수
-    
-    separator -h 12;
-    
-    text -label "--- MULTI LAYER JOB ---" -font "boldLabelFont" -h 22;
-    button -label "Visible"            -bgc .7 .7 .7-h 33  -c visOn;
-    button -label "Invisable"          -bgc .7 .7 .7-h 33 -c visOff; 
-
-    
-    separator -style "none" -h 7;
-
-    button -label "Full detail"        -h 33 -bgc .7 .7 .9-c fulldata;
-    button -label "Box detail"         -h 33 -bgc .7 .7 .9-c lowdata;
-    separator -style "none" -h 7;
-
-    button -label "Empty the layer"   -bgc .88 .88 .88 -h 33 -c emptyLayer;
-    button -label "Delete the layer"  -bgc .9 .7 .7  -h 33 -c delLayer;
-    separator -style "none" -h 12;
-    
-    text -label "--- SINGLE LAYER JOB ---" -font "boldLabelFont" -h 22;
-    button -label "Select objects from layer"  -h 33 -c selectLayer;
-    button -label "Add selected Objects to layer" -h 33 -c addtoSel;   
-    separator -h 12; 
-    
-    $custumedName=`textFieldGrp -w 2 -label "Rename To : " -it "enter a name to change" tempID`;
-    button -label "Click to rename current Layer" -c renameLayer;
-    separator -style "none" -h 12;
-    checkBox -label "DisplayLayerSort\nAlphabetically/Chronologically" -onc checkOn -ofc checkOff ;
-    //버튼완료    
-    showWindow displayCTRwindow;
-    
 }
 
 
-proc textScrollList_custum(){
+global proc textScrollList_custum(){
     string $ma_selected[] = `ls -type "displayLayer"`;
     string $ma_sel;
     int $sizeOfArray=size($ma_selected);
@@ -72,35 +87,31 @@ proc textScrollList_custum(){
 
 
 ////////////////////////////////////////////////////////////////
-proc refreshWindow(){
-   
-    evalDeferred(displaylayer_control());
-	//displaylayer_control();
-}
-proc visOn(){
+
+global proc visOn(){
    
     string $tempSelected[] = `textScrollList -q -si listId`;
     string $iterSingle;
     for ($iterSingle in $tempSelected){
-       layerEditorLayerButtonSelect 0 $iterSingle;
+        layerEditorLayerButtonSelect 0 $iterSingle;
         setLayerTo selected".visibility" 1;
     }
     clear $tempSelected;
    
 }
-proc visOff(){
+global proc visOff(){
    
     string $tempSelected[] = `textScrollList -q -si listId`;
     string $iterSingle;
     for ($iterSingle in $tempSelected){
-       layerEditorLayerButtonSelect 0 $iterSingle;
+        layerEditorLayerButtonSelect 0 $iterSingle;
         setLayerTo selected".visibility" 0;
     }
    
     clear $tempSelected;
    
 }
-proc fulldata(){
+global proc fulldata(){
     string $tempSelected[] = `textScrollList -q -si listId`;
     print $tempSelected;
     string $iterSingle;
@@ -111,7 +122,7 @@ proc fulldata(){
     clear $tempSelected;
 }
 
-proc lowdata(){
+global proc lowdata(){
     string $tempSelected[] = `textScrollList -q -si listId`;
     string $iterSingle;
     for ($iterSingle in $tempSelected){
@@ -122,7 +133,7 @@ proc lowdata(){
 }
 
 
-proc removeSel(){
+global proc removeSel(){
    //error
     string $tempSelected[] = `textScrollList -q -si listId`;
     string $iterSingle;
@@ -134,7 +145,7 @@ proc removeSel(){
     clear $tempSelected;
    
 }
-proc emptyLayer(){
+global proc emptyLayer(){
    string $tempSelected[] = `textScrollList -q -si listId`;
     print $tempSelected;
     string $iterSingle;
@@ -145,75 +156,87 @@ proc emptyLayer(){
    
    
 }
-proc delLayer(){
-   string $tempSelected[] = `textScrollList -q -si listId`;
+global proc delLayer(){
+    string $tempSelected[] = `textScrollList -q -si listId`;
     print $tempSelected;
     string $iterSingle;
     for ($iterSingle in $tempSelected){
-       evalDeferred ("layerEditorDeleteLayer "+$iterSingle);
-      layerEditorDeleteLayer $iterSingle;
-      delete $iterSingle;
+        if($iterSingle=="defaultLayer"){
+           print "Can't delete defaultLayer";
+        }
+        else{
+           delete $iterSingle;
+        }
+        
     }
-    clear $tempSelected;
-
+    
+    
+}
+global proc createLayer(){
+    createDisplayLayer -e -n "layer1";
+    pause -seconds .1;
+    //temp();
+    
     
 }
 
 
-
-proc selectLayer(){
-	if(`isSingle`){
-		string $tempSelected[] = `textScrollList -q -si listId`;
-   		string $iterSingle;
-    	for ($iterSingle in $tempSelected){
+global proc selectLayer(){
+   if(`isSingle`){
+      string $tempSelected[] = `textScrollList -q -si listId`;
+         string $iterSingle;
+       for ($iterSingle in $tempSelected){
         layerEditorSelectObjects $iterSingle;
     }
     clear $tempSelected;
-	}
-	else{
-		print "Please Select single DisplayLayer only";
-	}
+   }
+   else{
+      print "Please Select single DisplayLayer only";
+   }
 
 }
-proc addtoSel(){
+global proc addtoSel(){
     if(`isSingle`){
-    	string $tempSelected[] = `textScrollList -q -si listId`;
-   	    string $iterSingle;
-   	    for ($iterSingle in $tempSelected){
+       string $tempSelected[] = `textScrollList -q -si listId`;
+          string $iterSingle;
+          for ($iterSingle in $tempSelected){
         layerEditorAddObjects $iterSingle;
         editDisplayLayerMembers -noRecurse $iterSingle `ls -selection`;
         break;
     }
     clear $tempSelected;
     }
-	else{
-		print "Please Select single DisplayLayer only";
-	}
+   else{
+      print "Please Select single DisplayLayer only";
+   }
    
 }
-proc renameLayer(){
-	global string $templayerName;
-	$templayerName=`textFieldGrp -q -tx tempID`;
-	
-	
-	if(`isSingle`){
-    	string $tempSelected[] = `textScrollList -q -si listId`;
-   	    string $iterSingle;
-   	    for ($iterSingle in $tempSelected){
-        	rename $iterSingle $templayerName;
+global proc renameLayer(){
+   string $templayerName;
+   $templayerName=`textFieldGrp -q -tx tempID`;
+   
+   
+   if(`isSingle`){
+       string $tempSelected[] = `textScrollList -q -si listId`;
+          string $iterSingle;
+          for ($iterSingle in $tempSelected){
+           rename $iterSingle $templayerName;
         break;
     }
     clear $tempSelected;
     }
-	else{
-		print "Please Select single DisplayLayer only";
-	}
-	
+   else{
+      print "Please Select single DisplayLayer only";
+   }
+   
+}
+proc createNamedLayer(){
+   string $templayerName=`textFieldGrp -q -tx createID`;
+   createDisplayLayer -name $templayerName -number 1 -empty;
 }
 
 
-
-proc checkOn(){
+global proc checkOn(){
    optionVar -intValue displayLayerSortOptions 1; reorderLayers 1;
 }
 proc checkOff(){
@@ -223,18 +246,24 @@ proc checkOff(){
 
 
 
-proc int isSingle(){
-	string $tempSelected[] = `textScrollList -q -si listId`;
+global proc int isSingle(){
+   string $tempSelected[] = `textScrollList -q -si listId`;
     int $sizeOf=size($tempSelected);
 
     if($sizeOf==1){
-    	return 1;
+       return 1;
     }
     else{
-    	return 0;
+       return 0;
     }
     
 }
-
-
-displaylayer_control();
+proc refreshWindow(){
+   evalDeferred();
+   displaylayer_control(1);
+   //return 1;
+}
+proc temp(){
+   displaylayer_control(1);
+}
+temp();
