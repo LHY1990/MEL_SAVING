@@ -1,0 +1,13 @@
+string $temps[]=`ls -type "RedshiftAOV"`;
+string $count;
+for($count in $temps){
+    if(`objExists ($count+".lightGroupList")`){
+       editRenderLayerAdjustment ($count+".lightGroupList");
+    }
+}
+for($count in $temps){
+    if(`objExists ($count+".lightGroupList")`){
+        setAttr -type "string" ($count+".lightGroupList") "";
+    }
+    
+}
