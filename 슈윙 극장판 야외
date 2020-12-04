@@ -1,0 +1,104 @@
+//마지막 수정날짜 20 12 04 --10:20
+
+global proc workSpace(){
+    
+    //이름은 매번 바꿔서 사용할것
+    
+    if (`window -ex tempWindow`){
+        deleteUI -window tempWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "preRender Mel" tempWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+    //버튼 시작
+
+
+    button -label "라이트 불러오기" -bgc .5 .6 .5 -h 50 -c method_01 ;
+    button -label "카메라 선택 후 클릭" -bgc .7 .6 .6 -h 50 -c method_02 ;
+    button -label "자동셋업" -bgc .6 .6 .7 -h 50 -c method_03 ;
+   
+    
+    
+    //버튼완료    
+    showWindow tempWindow;
+    
+}
+
+workSpace();
+global proc method_01(){
+    
+    if(!`window -ex RenderGlobalsWindow`){ 
+       RenderGlobalsWindow;
+    }
+    setAttr "defaultRenderGlobals.currentRenderer" -type "string" "redshift";
+    loadNodePresets "SWM_PreRender_Out_A01";
+    
+    performFileDropAction ("P:/projects/SWM/pipelines/asset/rigging/preRenderOutDay_A01_Light/preRenderOutDay_A01_Light.mb");
+    deleteUI unifiedRenderGlobalsWindow;
+    
+}
+global proc method_02(){
+
+
+   string $Cameras1[] = `listCameras`;
+      int $ioi=0;
+      string $camm;
+
+      if(!`window -ex RenderGlobalsWindow`){ 
+       RenderGlobalsWindow;
+       }
+
+   for($camm in $Cameras1){
+    
+          setAttr ($Cameras1[$ioi]+".renderable") 0;
+          //print $Cameras1[$ioi];
+       //print "\n";
+       $ioi=$ioi+1;
+   }
+
+
+    deleteUI unifiedRenderGlobalsWindow;
+
+    string $shapes[1]=`ls -sl`;
+    setAttr ($shapes[0]+".nearClipPlane") 0.1;
+    setAttr ($shapes[0]+".farClipPlane") 5000;
+    //카메라 니어클립과 파 클립을 0.1과 5000으로 기본 지정합니다.
+    setAttr ($shapes[0]+".renderable") 1;
+    setAttr ("persp.renderable") 0;
+    setAttr ("front.renderable") 0;
+    setAttr ("top.renderable") 0;
+    setAttr ("side.renderable") 0;
+    //선택한 카메라를 렌더 세팅에 넣습니다 이때 다른카메라는 확인하여 지웁니다.
+    
+/*    editRenderLayerGlobals -currentRenderLayer BG_MATTE;
+    editRenderLayerAdjustment ($shapes[0]+".farClipPlane");
+    setAttr ($shapes[0]+".farClipPlane") 100000;
+    editRenderLayerGlobals -currentRenderLayer defaultRenderLayer;
+*/
+}
+global proc method_03(){
+    //currentUnit -time pal;
+    if(!`window -ex RenderGlobalsWindow`){ 
+       RenderGlobalsWindow;
+    }
+       
+    //redshiftChangeGlobalShader SWM_preRenderOutDay_A01_Light_PostFX_V01 "postEffects";  
+    connectAttr -f SWM_preRenderOutDay_A01_Light_PostFX_V01.message redshiftOptions.postEffects; 
+    
+
+    string $preRenderLayerMEL="connectAttr -f SWM_preRenderOutDay_A01_Light_PostFX_V01.message redshiftOptions.postEffects;";
+
+
+
+    setAttr -type "string" "redshiftOptions.preRenderFrameMel" $preRenderLayerMEL;
+    setAttr -type "string" "redshiftOptions.preRenderMel" $preRenderLayerMEL;
+
+    int $numberOfStartFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    setAttr "defaultRenderGlobals.startFrame" $numberOfStartFrame;
+    int $numberOfEndFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+    setAttr "defaultRenderGlobals.endFrame" $numberOfEndFrame;
+    deleteUI unifiedRenderGlobalsWindow;
+}
