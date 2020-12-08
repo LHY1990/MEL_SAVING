@@ -1,0 +1,111 @@
+global proc workSpaceSY(){
+    
+    //이름은 매번 바꿔서 사용할것
+    
+    if (`window -ex tempWindow`){
+        deleteUI -window tempWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "시연이 화이팅" tempWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+    //버튼 시작
+
+    
+    //button -label "layerOverride ON" -h 33 -bgc .8 .6 .5 -c visOverride ;
+    button -label "layerOverride OFF" -h 33 -bgc .8 .7 .5 -c visOverrideRemove;
+    separator -style "none" -h 20;
+    button -label "visibility ON" -h 33 -bgc .4 .4 .4 -c visOn;
+    button -label "visibility OFF" -h 33 -bgc .5 .5 .5 -c visOff;
+    separator -style "none" -h 20;
+    button -label "라이트링킹 넣기" -h 33 -bgc .5 .5 .5 -c lightlinkingE;
+    button -label "라이트링킹 빼기" -h 33 -bgc .3 .3 .3 -c lightlinkingBreakE;
+    separator -style "none" -h 20;
+    button -label "1920 1080" -h 33 -bgc .3 .3 .3 -c resOrigin;
+    button -label "960 540" -h 33 -bgc .3 .3 .3 -c resHalf;
+    
+    //버튼완료    
+    showWindow tempWindow;
+    
+}
+
+workSpaceSY();
+
+
+
+
+global proc visOverride(){
+   string $currentLayer=`editRenderLayerGlobals -q -currentRenderLayer`;
+
+
+    string $visArray[]=`ls -sl`;
+    string $visCount;
+    for($visCount in $visArray){
+       if($currentLayer=="defaultRenderLayer"){
+          print "마스터 레이어에서는 안됩니다.";
+          break;
+          
+       }
+        if(`objExists ($visCount+".visibility")`){
+            
+            editRenderLayerAdjustment ($visCount+".visibility");
+        }
+    }
+}
+proc visOverrideRemove(){
+    string $visArray[]=`ls -sl`;
+    string $visCount;
+    for($visCount in $visArray){
+        if(`objExists ($visCount+".visibility")`){
+            
+            editRenderLayerAdjustment -remove ($visCount+".visibility");
+        }
+    }
+}
+
+proc visOn(){
+	visOverride();
+	
+    string $visArray[]=`ls -sl`;
+    string $visCount;
+    for($visCount in $visArray){
+        if(`objExists ($visCount+".visibility")`){
+            
+            setAttr ($visCount+".visibility") 1;
+        }
+    }
+
+}
+proc visOff(){
+	visOverride();
+    string $visArray[]=`ls -sl`;
+    string $visCount;
+    for($visCount in $visArray){
+        if(`objExists ($visCount+".visibility")`){
+            setAttr ($visCount+".visibility") 0;
+        }
+    }
+
+}
+
+proc lightlinkingE(){
+   lightlink -make -useActiveLights -useActiveObjects;
+}
+proc lightlinkingBreakE(){
+   lightlink -b -useActiveLights -useActiveObjects; 
+}
+
+proc resOrigin(){
+	setAttr "defaultResolution.aspectLock" 0;
+	setAttr defaultResolution.width 1920;
+	setAttr defaultResolution.height 1080;
+	setAttr defaultResolution.deviceAspectRatio 1.778;
+}
+proc resHalf(){
+	setAttr "defaultResolution.aspectLock" 0;
+	setAttr defaultResolution.width 960;
+	setAttr defaultResolution.height 540;
+	setAttr defaultResolution.deviceAspectRatio 1.778;
+}
