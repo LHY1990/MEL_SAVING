@@ -1,0 +1,6 @@
+string $noshd[]=`ls -type "RedshiftVisibility"`;
+string $temp;
+for($temp in $noshd){
+    editRenderLayerAdjustment ($temp+".shadowCaster");
+    setAttr ($temp+".shadowCaster" 0;
+}
