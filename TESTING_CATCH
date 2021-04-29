@@ -1,0 +1,16 @@
+
+string $selectedSHD[]=`ls -type "RedshiftMaterial"`;
+string $counting;
+for($counting in $selectedSHD){
+    if(`objExists ($counting+".refr_transmittance")`){
+        
+        editRenderLayerAdjustment ($counting+".refr_transmittance");
+            
+        if(catch(`setAttr ($counting+".refr_transmittance") -type double3 0 0 0`)){
+            print "일단넘어감";
+            continue;
+        }  
+        
+    }
+    
+}    
