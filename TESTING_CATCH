@@ -22,7 +22,7 @@
 	string $countingI;
 	for($countingI in $tempRamp){
 		string $tempString="1";
-		$tempString =`gmatch $countingI "ramp*" `;
+		$tempString =`gmatch $countingI "*ramp*" `;
 		if($tempString =="1"){
 			
 			editRenderLayerAdjustment ($countingI+".colorGain");
