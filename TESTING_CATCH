@@ -1,3 +1,4 @@
+  
 {
 	string $selectedSHD[]=`ls -type "RedshiftMaterial"`;
 	string $counting;
@@ -16,7 +17,30 @@
 		    }	
 	    }  
 	} 
+	//여기 위까진 그냥끄기
+	string $tempRamp[]=`ls -type "ramp"`;
+
+	string $counting;
+	for($counting in $tempRamp){
+		string $tempString="1";
+		$tempString =`gmatch $counting "ramp*" `;
+		if($tempString =="1"){
+			print $counting;
+			editRenderLayerAdjustment ($counting+".colorGain");
+			setAttr ($counting+".colorGain") -type double3 0.000000 0.000000 0.000000 ;
+		}
+	}
+	//여기까진 ramp000끄기 아래는 incan끄기
+	string $tempIncan[]=`ls -type "RedshiftIncandescent"`;
+	string $countingIncan ;
+	for($countingIncan in $tempIncan){
+		editRenderLayerAdjustment ($countingIncan+".intensity");
+		setAttr ($countingIncan+".intensity") 0;
+	}
 }
+
+
+
 
 
 
