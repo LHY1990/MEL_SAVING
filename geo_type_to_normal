@@ -1,5 +1,5 @@
 {
-  string $tempObj[]=`ls type "transform"`;
+  string $tempObj[]=`ls -type "transform"`;
   string $tempCount;
 
   for($tempCount in $tempObj){
