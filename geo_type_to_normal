@@ -1,0 +1,12 @@
+{
+  string $tempObj[]=`ls type "transform"`;
+  string $tempCount;
+
+  for($tempCount in $tempObj){
+
+      if(`objExists ($tempCount+".geo_type")`){
+          setAttr ($tempCount+".geo_type") 0;
+
+      }
+  }
+}
