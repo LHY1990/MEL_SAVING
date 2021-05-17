@@ -1,1 +1,1 @@
-connectAttr -f %POSTFX_NAME%.message redshiftOptions.postEffects;
+connectAttr -f POSTFX이름.message redshiftOptions.postEffects;
