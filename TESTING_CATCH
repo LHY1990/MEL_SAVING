@@ -37,3 +37,68 @@
 		setAttr ($countingIncan+".intensity") 0;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//여기 아래는 선택한 오브젝트만 살리는 기능
+
+
+
+
+
+
+
+
+
+
+
+{
+	string $selectedSHD[]=`ls -sl -type "RedshiftMaterial"`;
+	string $counting;
+	for($counting in $selectedSHD){				
+		if(`objExists ($counting+".refr_transmittance")`){
+			editRenderLayerAdjustment -remove ($counting+".refr_transmittance");
+		    
+		    	
+	    }  
+	} 
+	//여기 위까진 그냥끄기
+	string $tempRamp[]=`ls -sl -type "ramp"`;
+
+	string $countingI;
+	for($countingI in $tempRamp){
+		string $tempString="1";
+		$tempString =`gmatch $countingI "*ramp*" `;
+		if($tempString =="1"){
+			
+			editRenderLayerAdjustment -remove ($countingI+".colorGain");
+			
+		}
+	}
+	//여기까진 ramp000끄기 아래는 incan끄기
+	string $tempIncan[]=`ls -sl -type "RedshiftIncandescent"`;
+	string $countingIncan ;
+	for($countingIncan in $tempIncan){
+		editRenderLayerAdjustment -remove ($countingIncan+".intensity");
+		
+	}
+}
