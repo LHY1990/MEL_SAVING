@@ -1,0 +1,13 @@
+{
+
+    string $temp[]=`ls -sl`;
+    string $count;
+    for($string in $temp){
+        redshiftChangeTraceSet ($count+".rsReflectionTraceSet") "rsTraceSet_rocket" false ;
+    }
+        
+     
+
+
+
+}
