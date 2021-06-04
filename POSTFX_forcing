@@ -9,3 +9,10 @@ connectAttr -f SolarSpace_Light:SWM_SolarSpaceLight_Set_PostFX_V01.message redsh
 
 
 connectAttr -f SolarSpace_Light:SWM_Earth_PostFX.message redshiftOptions.postEffects;
+
+
+
+
+editRenderLayerAdjustment  redshiftOptions.preRenderMel;
+editRenderLayerAdjustment  redshiftOptions.preRenderLayerMel;
+editRenderLayerAdjustment  redshiftOptions.preRenderFrameMel;
