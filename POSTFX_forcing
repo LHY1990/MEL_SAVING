@@ -4,3 +4,8 @@ connectAttr -f POSTFX이름.message redshiftOptions.postEffects;
 
 connectAttr -f SolarSpace_Light:SWM_SolarSpaceLight_Set_PostFX_V01.message redshiftOptions.postEffects;
 
+
+
+
+
+connectAttr -f SolarSpace_Light:SWM_Earth_PostFX.message redshiftOptions.postEffects;
