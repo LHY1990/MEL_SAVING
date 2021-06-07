@@ -1,0 +1,9 @@
+string $temp[]=`ls  -type "transform"`;
+string $count;
+for($count in $temp){
+    if(`gmatch  $count "*wrap*"`){
+        print $count;
+    }    
+}//이렇게 해서 단어가 들어간 결과물을 찾는다.
+
+select Billywilly_xgen:wrapGeo_GRP;
