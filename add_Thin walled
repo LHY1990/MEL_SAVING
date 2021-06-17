@@ -1,0 +1,8 @@
+string $temp[]=`ls  -type "RedshiftMaterial"`;
+string $count;
+for($count in $temp){
+    if(`objExists ($count+".refr_thin_walled")`){
+        editRenderLayerAdjustment ($count+".refr_thin_walled");
+        setAttr ($count+".refr_thin_walled") 1;
+    }    
+}
