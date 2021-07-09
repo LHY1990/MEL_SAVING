@@ -1,0 +1,48 @@
+ setAttr "redshiftOptions.motionBlurEnable" 1;
+    setAttr "redshiftOptions.motionBlurNumTransformationSteps" 10;
+    int $doubleNum=0;
+    int $startFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    int $endFrame=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField4`;
+
+    $doubleNum=($endFrame-$startFrame+1);
+    $doubleNum=$doubleNum*2;
+
+    setAttr "redshiftOptions.motionBlurFrameDuration" $doubleNum;
+    
+    setAttr "redshiftOptions.motionBlurShutterStart" 0;
+    setAttr "redshiftOptions.motionBlurShutterEnd" 1;
+    setAttr "redshiftOptions.motionBlurShutterPosition" 1;
+    
+    //모션블러 옵션을 프레임범위의 2배수로 변경합니다.
+    setAttr "redshiftOptions.motionBlurEnable" 0;
+    setAttr "redshiftOptions.primaryGIEngine" 3;
+    setAttr "redshiftOptions.secondaryGIEngine" 2;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 0;
+    setAttr "redshiftOptions.irradianceCacheMode" 0;
+    editRenderLayerAdjustment "redshiftOptions.irradiancePointCloudFilename";
+    editRenderLayerAdjustment "redshiftOptions.irradianceCacheFilename";
+    //gi굽기 시작
+    string $filePath1=`file -q -sceneName`;
+    string $output[8];
+    tokenize $filePath1 "/" $output;
+
+    string $IPC_cutted[];
+    string $IC_cutted[];
+    
+    tokenize $output[7] "." $IPC_cutted;
+    $output[7]=$IPC_cutted[0];
+    
+    string $PATH_IPC;
+    string $PATH_IC;
+    $PATH_IPC= ($output[3]+"\\"+$output[4]+"\\"+$output[5]+"\\"+$output[6]+"\\"+$output[7]+"_IPC.rsmap");
+    $PATH_IC= ($output[3]+"\\"+$output[4]+"\\"+$output[5]+"\\"+$output[6]+"\\"+$output[7]+"_IC.rsmap");
+    //저장된 파일 위치로 GI를 구워줍니다.
+
+    setAttr -type "string" redshiftOptions.irradiancePointCloudFilename $PATH_IPC;
+    setAttr -type "string" redshiftOptions.irradianceCacheFilename $PATH_IC;
+    
+    
+    
+    
+    setAttr "redshiftOptions.irradiancePointCloudMode" 3;
+    setAttr "redshiftOptions.irradianceCacheMode" 3;
