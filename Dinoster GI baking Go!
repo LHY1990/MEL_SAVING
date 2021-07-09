@@ -1,0 +1,9 @@
+int $motionBlurNumeber=`timeField -q -v RangeSlider|MainPlaybackRangeLayout|formLayout9|timeField3`;
+    currentTime $motionBlurNumeber;
+    setAttr "redshiftOptions.motionBlurEnable" 1;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 0;
+    setAttr "redshiftOptions.irradianceCacheMode" 0;
+    redshiftRvRender "render" "";
+    setAttr "redshiftOptions.motionBlurEnable" 0;
+    setAttr "redshiftOptions.irradiancePointCloudMode" 1;
+    setAttr "redshiftOptions.irradianceCacheMode" 1;
