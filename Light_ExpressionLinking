@@ -1,0 +1,128 @@
+  
+global proc workSpaceExpr(){
+    global int $isIntensityNeed=0;
+    global int $isColorNeed=0;
+    global string $original="";
+    global string $targets[];
+    
+    
+    //이름은 매번 바꿔서 사용할것
+    
+    if (`window -ex ExpressionWindow`){
+        deleteUI -window ExpressionWindow;
+    }
+    //만약에 같은 창이 열려있다면 기존의 창을 닫습니다.
+    
+    window -title "Easy Lights Expression Maker" ExpressionWindow;
+    
+    columnLayout -adjustableColumn 1;
+    
+    //버튼 시작
+    text -label "   라이트 Expression Adder" -align "left";
+    
+    button -label "기준 라이트 선택 후 클릭 " -ann "값을 가져올 라이트 1개를 선택 후에 이 버튼을 클릭합니다." -c getOriginal;
+    button -label "타겟 라이트 선택 후 클릭 " -ann "익스프레션을 넣을 라이트들을 선택 후에 이 버튼을 클릭합니다." -c getTargets;
+    
+    text -label "\n필요한 익스프레션 가져오기\n" -align "left";
+    
+    checkBox -label "Intensity Linking" -ann "라이트의 인텐시티 값을 링킹합니다." -onc intensityUpdate -offCommand intensityUpdate;
+    checkBox -label "Color Linking" -ann "라이트의 컬러 값을 링킹합니다." -onc colorUpdate -offCommand colorUpdate;
+    
+    button -label "셋 업" -bgc .5 .5 .5 -c setExpressions;
+   
+    
+    
+   
+    showWindow ExpressionWindow;
+    
+}
+
+proc getOriginal(){
+	global string $original;
+    string $tempSel[]=`ls -sl`;
+    $original=$tempSel[0];
+}
+
+proc getTargets(){
+	global string $targets[];
+	
+	$targets=`ls -sl`;
+}
+
+
+
+
+proc intensityUpdate(){
+    
+    global int $isIntensityNeed;
+    
+    if($isIntensityNeed==0){
+        $isIntensityNeed=1;
+    }
+    else{
+        $isIntensityNeed=0;
+    }
+    
+    print $isIntensityNeed;
+}
+
+proc colorUpdate(){
+    
+    global int $isColorNeed;
+    if($isColorNeed==0){
+        $isColorNeed=1;   
+    }
+    else{ 
+        $isColorNeed=0;
+    }
+    
+    print $isColorNeed;
+    
+}    
+
+proc setExpressions(){
+	
+	global int $isIntensityNeed;
+    global int $isColorNeed;
+    global string $original;
+    global string $targets[];
+	
+	string $confirmMessage=("값을 가져올 라이트 : "+$original+"\n" + "값을 넣을 라이트 :");
+	string $tempString;
+	for($tempString in $targets){
+		$confirmMessage=($confirmMessage+" "+$tempString);
+	}
+	print $confirmMessage;
+	//confirmDialog -m $confirmMessage;
+	//만약에 있으면 에러메세지를 넣거나 덮어 씌울지 결정하게 할
+	
+	
+	
+	
+	
+	if($isIntensityNeed==1){
+		string $tempCount;
+		for($tempCount in $targets){
+			string $intensityLinking;
+			$intensityLinking = ($tempCount+"Shape.intensity = "+$original+"Shape.intensity ;");
+			print $intensityLinking;
+			expression -s $intensityLinking -o $tempCount -n "lightIntensityLinking" -uc all;
+		}
+	}
+	
+	if($isColorNeed==1){
+		string $tempCount;
+		for($tempCount in $targets){
+			string $colorLinking;
+			$colorLinking=($tempCount+"Shape.colorR = "+$original+"Shape.colorR;" + $tempCount+"Shape.colorG = "+$original+"Shape.colorG ;" + $tempCount+"Shape.colorB = "+$original+"Shape.colorB ;");
+			expression -s $colorLinking -o $tempCount -n "lightColorLinking"  -uc all;
+		}
+	}
+	
+	
+	
+}
+
+
+
+workSpaceExpr();
