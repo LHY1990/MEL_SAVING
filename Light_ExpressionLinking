@@ -111,10 +111,11 @@ proc setExpressions(){
 	}
 	
 	if($isColorNeed==1){
-		string $tempCount;
-		for($tempCount in $targets){
+		string $tempCount[];
+		for($tempString in $targets){
 			string $colorLinking;
-			$colorLinking=($tempCount+"Shape.colorR = "+$original+"Shape.colorR;" + $tempCount+"Shape.colorG = "+$original+"Shape.colorG ;" + $tempCount+"Shape.colorB = "+$original+"Shape.colorB ;");
+			$tempCount=`listRelatives -s $tempString`;
+			$colorLinking=($tempCount[0]+".colorR = "+$original+"Shape.colorR;" + $tempCount[0]+".colorG = "+$original+"Shape.colorG ;" + $tempCount[0]+".colorB = "+$original+"Shape.colorB ;");
 			expression -s $colorLinking -o $tempCount -n "lightColorLinking"  -uc all;
 		}
 	}
