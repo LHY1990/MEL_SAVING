@@ -23,15 +23,17 @@ global proc workSpaceExpr(){
     button -label "기준 라이트 선택 후 클릭 " -ann "값을 가져올 라이트 1개를 선택 후에 이 버튼을 클릭합니다." -bgc .8 .6 .6  -height 50 -c getOriginal;
     button -label "타겟 라이트 선택 후 클릭 " -ann "익스프레션을 넣을 라이트들을 선택 후에 이 버튼을 클릭합니다." -bgc .6 .8 .6 -height 50 -c getTargets;
     separator -height 20 ;
-    text -label "  Select Expression\n" -align "left";
+    text -label "  # Select Expression\n" -align "left";
     
     checkBox -label "Color Linking" -ann "라이트의 Color를 링킹합니다." -onc colorUpdate -offCommand colorUpdate;
     checkBox -label "Intensity Linking" -ann "라이트의 Intensity를 링킹합니다." -onc intensityUpdate -offCommand intensityUpdate;
     checkBox -label "Exposure Linking" -ann "라이트의 Exposure를 링킹합니다." -onc exposureUpdate -offCommand exposureUpdate;
     
     
-    separator -style "none";
-    button -label "셋 업" -bgc .5 .5 .5 -c setExpressions;
+    separator -style "none" -height 10;
+    button -label "Expression 연결" -bgc .5 .7 .5 -c setExpressions;
+    separator  ;
+    button -label "Expression 끊기" -bgc .7 .5 .5 -c cutExpressions;
    
     
     
@@ -171,6 +173,93 @@ proc setExpressions(){
    
    }
    
+}
+
+
+proc cutExpressions(){
+	global int $isIntensityNeed;
+    global int $isColorNeed;
+    global int $isExposurNeed;
+    string $selectedItem[]=`ls -sl`;
+    
+    string $selectedObj;//1차 반복문 용 스트링
+    
+    
+    //삭제리스트 마지막확인
+    string $finalCheckList;
+    string $tempCounting;
+    for($tempCounting in $selectedItem){
+    	$finalCheckList = $finalCheckList+" "+$tempCounting+"\n";
+    }
+    
+    
+    //
+    
+    
+    string $onClick=`confirmDialog -title "Final Check" -m ("체크된 옵션들이 지워질 리스트 :\n"+$finalCheckList)  -b "확인" -defaultButton "확인" -b "취소" -cancelButton "취소" -dismissString "취소"` ;
+    
+    if($onClick=="확인"){
+    
+	    for($selectedObj in $selectedItem){//선택한 오브젝트 이름을 가져온다.
+		   
+		    if($isIntensityNeed==1){//만약에 인텐시티가 체크되어 있다면
+		    	string $currentObjName=$selectedObj; //현재 오브젝트 이름 추출
+		    	string $expressionList[]=`ls -type "expression"`; //익스프레숀 전체 리스트 가져옴
+		    	string $exp;
+		    	
+		    	for($exp in $expressionList){
+		    		string $deleteExp=$exp;
+		    		
+		    		if(`gmatch $deleteExp ($currentObjName+"_lightIntensity*")`){
+		    			if(catchQuiet(`delete $exp`)){
+		    				continue;
+		    			}
+		    		}	    		
+		    	}
+		    }  
+	    }
+    
+	    for($selectedObj in $selectedItem){//선택한 오브젝트 이름을 가져온다.
+		   
+		    if($isColorNeed==1){//만약에 컬러가 체크되어 있다면
+		    	string $currentObjName=$selectedObj; //현재 오브젝트 이름 추출
+		    	string $expressionList[]=`ls -type "expression"`; //익스프레숀 전체 리스트 가져옴
+		    	string $exp;
+		    	
+		    	for($exp in $expressionList){
+		    		string $deleteExp=$exp;
+		    		
+		    		if(`gmatch $deleteExp ($currentObjName+"_lightColor*")`){
+		    			if(catchQuiet(`delete $exp`)){
+		    				continue;
+		    			}
+		    		}	    		
+		    	}
+		    }  
+	    }
+    
+	    for($selectedObj in $selectedItem){//선택한 오브젝트 이름을 가져온다.
+		   
+		    if($isExposurNeed==1){//만약에 익스포저가 체크되어 있다면
+		    	string $currentObjName=$selectedObj; //현재 오브젝트 이름 추출
+		    	string $expressionList[]=`ls -type "expression"`; //익스프레숀 전체 리스트 가져옴
+		    	string $exp;
+		    	
+		    	for($exp in $expressionList){
+		    		string $deleteExp=$exp;
+		    		
+		    		if(`gmatch $deleteExp ($currentObjName+"_lightExposure*")`){
+		    			if(catchQuiet(`delete $exp`)){
+		    				continue;
+		    			}
+		    		}	    		
+		    	}
+		    }  
+	    }
+    	
+
+	}
+	
 }
 
 
