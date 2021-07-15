@@ -1,6 +1,7 @@
-  global proc workSpaceExpr(){
+global proc workSpaceExpr(){
     global int $isIntensityNeed=0;
     global int $isColorNeed=0;
+    global int $isExposurNeed=0;
     global string $original="";
     global string $targets[];
     
@@ -24,8 +25,10 @@
     separator -height 20 ;
     text -label "  Select Expression\n" -align "left";
     
-    checkBox -label "Intensity Linking" -ann "라이트의 인텐시티 값을 링킹합니다." -onc intensityUpdate -offCommand intensityUpdate;
-    checkBox -label "Color Linking" -ann "라이트의 컬러 값을 링킹합니다." -onc colorUpdate -offCommand colorUpdate;
+    checkBox -label "Color Linking" -ann "라이트의 Color를 링킹합니다." -onc colorUpdate -offCommand colorUpdate;
+    checkBox -label "Intensity Linking" -ann "라이트의 Intensity를 링킹합니다." -onc intensityUpdate -offCommand intensityUpdate;
+    checkBox -label "Exposure Linking" -ann "라이트의 Exposure를 링킹합니다." -onc exposureUpdate -offCommand exposureUpdate;
+    
     
     separator -style "none";
     button -label "셋 업" -bgc .5 .5 .5 -c setExpressions;
@@ -38,35 +41,22 @@
 }
 
 proc getOriginal(){
-	//선택한 오브젝트를 전역변수 오리지널로 택한다. 이건 하나만 선택된다.
-	global string $original;
+   //선택한 오브젝트를 전역변수 오리지널로 택한다. 이건 하나만 선택된다.
+   global string $original;
     string $tempSel[]=`ls -sl`;
     $original=$tempSel[0];
 }
 
 proc getTargets(){
-	//선택한 라이트들이 전역변수로 저장된다.
-	global string $targets[];
-	
-	$targets=`ls -sl`;
+   //선택한 라이트들이 전역변수로 저장된다.
+   global string $targets[];
+   
+   $targets=`ls -sl`;
 }
 
 
 
 
-proc intensityUpdate(){
-    //체크박스를 확인해서 체크박스가 등록되면 인텐시티를 변경하도록 전역변수 변겅
-    global int $isIntensityNeed;
-    
-    if($isIntensityNeed==0){
-        $isIntensityNeed=1;
-    }
-    else{
-        $isIntensityNeed=0;
-    }
-    
-    print $isIntensityNeed;
-}
 
 proc colorUpdate(){
     //체크박스를 확인해서 체크박스를 체크된다면 컬러도 연결하도록 전역 변수를 설정
@@ -82,58 +72,107 @@ proc colorUpdate(){
     
 }    
 
+proc intensityUpdate(){
+    //체크박스를 확인해서 체크박스가 등록되면 인텐시티를 변경하도록 전역변수 변겅
+    global int $isIntensityNeed;
+    
+    if($isIntensityNeed==0){
+        $isIntensityNeed=1;
+    }
+    else{
+        $isIntensityNeed=0;
+    }
+    
+    print $isIntensityNeed;
+}
+
+
+proc exposureUpdate(){
+    //체크박스를 확인해서 체크박스가 등록되면 익스포저를 변경하도록 전역변수 변겅
+    global int $isExposurNeed;
+    
+    if($isExposurNeed==0){
+        $isExposurNeed=1;
+    }
+    else{
+        $isExposurNeed=0;
+    }
+    
+    print $isExposurNeed;
+}
+
+
 proc setExpressions(){
-	//전역 변수를 가져오고 메세지를 만든다.
-	global int $isIntensityNeed;
+   //전역 변수를 가져오고 메세지를 만든다.
+    global int $isIntensityNeed;
     global int $isColorNeed;
+    global int $isExposurNeed;
     global string $original;
     global string $targets[];
-	
-	string $confirmMessage=("값을 가져올 라이트 : "+$original+"\n" + "값을 넣을 라이트 :");
-	string $tempString;
-	for($tempString in $targets){
-		$confirmMessage=($confirmMessage+" "+$tempString);
-	}
-	print $confirmMessage;
-	
-	
-	
-	string $onClick=`confirmDialog -title "라이트 확인" -m $confirmMessage -b "확인" -defaultButton "확인" -b "취소" -cancelButton "취소" -dismissString "취소"` ;
-	
-	string $originalShape=$original;
-	$origial=`listRelatives -s $originalShape`;
-	
-	if($onClick=="확인"){
-	
-		
-		
-		
-		if($isIntensityNeed==1){
-			string $tempCount[];
-			for($tempString in $targets){
-				string $intensityLinking;
-				$tempCount=`listRelatives -s $tempString`;
-				$intensityLinking = ($tempCount[0]+".intensity = "+$original+".intensity ;");
-				print $intensityLinking;
-				expression -s $intensityLinking -o $tempCount -n ($tempString+"_lightIntensity_From_"+$original) -uc all;
-			}
-		}
-		
-		if($isColorNeed==1){
-			string $tempCount[];
-			for($tempString in $targets){
-				string $colorLinking;
-				$tempCount=`listRelatives -s $tempString`;
-				$colorLinking=($tempCount[0]+".colorR = "+$original+".colorR;" + $tempCount[0]+".colorG = "+$original+".colorG ;" + $tempCount[0]+".colorB = "+$original+".colorB ;");
-				expression -s $colorLinking -o $tempCount -n ($tempString+"_lightColor_From_"+$original)  -uc all;
-			}
-		}
-	
-	}
-	
+   
+   string $confirmMessage=("값을 가져올 라이트 : "+$original+"\n" + "값을 넣을 라이트 :");
+   string $tempString;
+   for($tempString in $targets){
+      $confirmMessage=($confirmMessage+" "+$tempString);
+   }
+   print $confirmMessage;
+   
+   
+   
+   string $onClick=`confirmDialog -title "라이트 확인" -m $confirmMessage -b "확인" -defaultButton "확인" -b "취소" -cancelButton "취소" -dismissString "취소"` ;
+   
+   string $originalShape=$original;
+   $origial=`listRelatives -s $originalShape`;
+   
+   if($onClick=="확인"){
+   
+      
+      if($isColorNeed==1){
+         string $tempCount[];
+         for($tempString in $targets){
+            string $colorLinking;
+            $tempCount=`listRelatives -s $tempString`;
+            $colorLinking=($tempCount[0]+".colorR = "+$original+".colorR;" + $tempCount[0]+".colorG = "+$original+".colorG ;" + $tempCount[0]+".colorB = "+$original+".colorB ;");
+            if(catchQuiet(`expression -s $colorLinking -o $tempCount -n ($tempString+"_lightColor_From_"+$original)  -uc all`)){
+            	print ($tempString+"은 이미 color 연결되어 있습니다\n");
+           		continue;
+            }
+         }
+      }
+      
+      if($isIntensityNeed==1){
+         string $tempCount[];
+         for($tempString in $targets){
+            string $intensityLinking;
+            $tempCount=`listRelatives -s $tempString`;
+            $intensityLinking = ($tempCount[0]+".intensity = "+$original+".intensity ;");
+            print $intensityLinking;
+           	if(catchQuiet(`expression -s $intensityLinking -o $tempCount -n ($tempString+"_lightIntensity_From_"+$original) -uc all`) ){
+           		print ($tempString+"은 이미 intensity 연결되어 있습니다\n");
+           		continue;
+           	} 
+         }
+      }
+      
+      
+      
+      if($isExposurNeed==1){
+         string $tempCount[];
+         for($tempString in $targets){
+            string $exposureLinking;
+            $tempCount=`listRelatives -s $tempString`;
+            $exposureLinking=($tempCount[0]+".exposure = "+$original+".exposure ;");
+            if(catchQuiet(`expression -s $exposureLinking -o $tempCount -n ($tempString+"_lightExposure_From_"+$original)  -uc all`)){
+            	print ($tempString+"은 이미 exposure 연결되어 있습니다\n");
+           		continue;
+            }
+         }
+      }
+   
+   }
+   
 }
 
 
 
 workSpaceExpr();
-
