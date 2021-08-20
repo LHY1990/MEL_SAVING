@@ -1,0 +1,32 @@
+{
+	string $selectedSHD[]=`ls -type "RedshiftMaterial"`;
+	string $counting;
+	for($counting in $selectedSHD){				
+		if(`objExists ($counting+".refr_transmittance")`){
+			
+		    if(catchQuiet(`editRenderLayerAdjustment ($counting+".refr_transmittance")`)){
+		    	//에러가 나면 이게 작동, 에러가 나야 1이 반환된다.
+		    	//에러가 안난다면 catch안의 구문 작동, 에러가 안남과 동시에 else 구문이 작동
+		    	continue;
+		    }
+		    else{		    	
+		        if(catchQuiet(`setAttr ($counting+".refr_transmittance") -type double3 0 0 0`)){
+		        	continue;
+		        }	    	
+		    }	
+	    }  
+	} 
+}
+{
+
+    string $temp1[]=`ls  -type "ramp"`;
+    string $count;
+    for($count in $temp1){
+        if(`objExists ($count+".refr_absorption_scale")`){
+            editRenderLayerAdjustment ($count+".colorGain");
+            setAttr ($count+".colorGain") -type double3 0 0 0;
+        }    
+    }
+
+
+}
