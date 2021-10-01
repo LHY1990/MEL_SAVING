@@ -1,3 +1,7 @@
 마야 설치파일 창에서 파일창에 cmd를 적으면 창이 열린다.
 
 batabatch.exe -prompt 로 실행하면 mel로 접근가능하도록 창이 열린다.
+
+
+file -rename "fred.ma"; file -save -type "mayaAscii";
+해당 위치에 속성만 다르게 저장가능
